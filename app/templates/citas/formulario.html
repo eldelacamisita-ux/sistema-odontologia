@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if cita %}Editar{% else %}Nueva{% endif %} cita</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.paciente_id.label }} {{ form.paciente_id(class="form-select") }}</div>
+    <div class="mb-3">{{ form.fecha.label }} {{ form.fecha(class="form-control") }}</div>
+    <div class="mb-3">{{ form.hora.label }} {{ form.hora(class="form-control") }}</div>
+    <div class="mb-3">{{ form.motivo.label }} {{ form.motivo(class="form-control") }}</div>
+    {% if cita %}
+    <div class="mb-3">{{ form.estado.label }} {{ form.estado(class="form-select") }}</div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('citas.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

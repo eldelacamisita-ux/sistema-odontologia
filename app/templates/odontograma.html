@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2><i class="fas fa-chart-simple"></i> Odontograma de {{ paciente.nombre }}</h2>
+<form method="POST" id="odontogramaForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="dientes_json" id="dientes_json">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="odontograma-grid" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; background: #f8f9fa; padding: 20px; border-radius: 15px;">
+                {% for diente in dientes_list %}
+                <div class="text-center">
+                    <div class="diente-card border rounded p-2" data-diente="{{ diente }}" data-estado="{{ actual.get(diente, 'sano') }}" style="cursor:pointer; transition:0.2s;">
+                        <strong>{{ diente }}</strong><br>
+                        <span class="estado-icono">{{ estados[actual.get(diente, 'sano')]['icono'] }}</span>
+                        <span class="estado-texto small d-block">{{ estados[actual.get(diente, 'sano')]['texto'] }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-4 text-center">
+                <p>Haz clic en un diente para cambiar su estado:</p>
+                <div class="btn-group mb-3" role="group">
+                    {% for key, val in estados.items() %}
+                    <button type="button" class="btn btn-outline-secondary estado-selector" data-estado="{{ key }}">{{ val.icono }} {{ val.texto }}</button>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar odontograma</button>
+                <a href="{{ url_for('pacientes.historia', id=paciente.id) }}" class="btn btn-secondary">Volver</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/odontograma.js') }}"></script>
+<script>
+    // Inicializar odontograma interactivo
+    initOdontograma({{ actual|tojson }}, {{ estados|tojson }});
+</script>
+{% endblock %}

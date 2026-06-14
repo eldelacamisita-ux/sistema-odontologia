@@ -1,0 +1,90 @@
+{% extends "portal/base_portal.html" %}
+
+{% block page_title %}Mis Citas{% endblock %}
+{% block page_subtitle %}Historial completo de tus citas médicas{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Todas mis Citas</h5>
+                <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nueva Cita
+                </a>
+            </div>
+            <div class="card-body">
+                {% if citas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Fecha</th>
+                                    <th><i class="fas fa-clock"></i> Hora</th>
+                                    <th><i class="fas fa-comment-medical"></i> Motivo</th>
+                                    <th><i class="fas fa-info-circle"></i> Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                <tr>
+                                    <td>{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ cita.fecha_hora.strftime('%H:%M') }}</td>
+                                    <td>{{ cita.motivo or 'Consulta general' }}</td>
+                                    <td>
+                                        {% if cita.estado == 'pendiente' %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock"></i> Pendiente de Aprobación
+                                            </span>
+                                        {% elif cita.estado == 'programada' %}
+                                            {% if cita.fecha_hora > now() %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Confirmada
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Realizada</span>
+                                            {% endif %}
+                                        {% elif cita.estado == 'rechazada' %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Rechazada
+                                            </span>
+                                        {% elif cita.estado == 'cancelada' %}
+                                            <span class="badge bg-danger">Cancelada</span>
+                                        {% elif cita.estado == 'realizada' %}
+                                            <span class="badge bg-primary">Completada</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ cita.estado }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now() %}
+                                            <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                                <i class="fas fa-times"></i> Cancelar
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No tienes citas registradas</h5>
+                        <p class="text-muted">Agenda tu primera cita para comenzar</p>
+                        <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-calendar-plus"></i> Agendar Primera Cita
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

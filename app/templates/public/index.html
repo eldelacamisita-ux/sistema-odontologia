@@ -1,0 +1,220 @@
+{% extends "public/base_public.html" %}
+
+{% block content %}
+<!-- Hero -->
+<section id="inicio" class="hero-section">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">Bienvenido a OdontoSeguro</h1>
+        <p class="lead fs-4">Tu clínica dental de confianza en Caracas</p>
+        <p class="fs-5">Cuidamos tu sonrisa con profesionalismo y tecnología de punta</p>
+        <a href="#form-cita" class="btn btn-cita btn-lg mt-3">
+            <i class="fas fa-calendar-plus"></i> Solicitar Cita
+        </a>
+    </div>
+</section>
+
+<!-- Nosotros -->
+<section id="nosotros" class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="fw-bold mb-4">¿Quiénes Somos?</h2>
+                <p class="text-muted mb-3">
+                    OdontoSeguro es una clínica dental moderna comprometida con ofrecer 
+                    servicios odontológicos de primera calidad en el corazón de Caracas.
+                </p>
+                <p class="text-muted mb-4">
+                    Nuestro equipo de profesionales utiliza las últimas tecnologías 
+                    para garantizar tu comodidad y los mejores resultados.
+                </p>
+                <div>
+                    <p><i class="fas fa-check-circle text-success"></i> Más de 15 años de experiencia</p>
+                    <p><i class="fas fa-check-circle text-success"></i> Tecnología de última generación</p>
+                    <p><i class="fas fa-check-circle text-success"></i> Atención personalizada</p>
+                </div>
+            </div>
+            <div class="col-md-6 text-center">
+                <i class="fas fa-tooth" style="font-size: 200px; color: #0a5c8e; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Especialidades -->
+<section id="especialidades" class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Nuestras Especialidades</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-tooth fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Odontología General</h5>
+                    <p class="text-muted text-center">
+                        Limpiezas, revisiones, empastes y cuidados básicos para tu salud dental.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-smile-beam fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Estética Dental</h5>
+                    <p class="text-muted text-center">
+                        Blanqueamientos, carillas y diseño de sonrisa para lucir radiante.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-x-ray fa-3x text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Ortodoncia</h5>
+                    <p class="text-muted text-center">
+                        Brackets y alineadores invisibles para una sonrisa perfecta.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-syringe fa-3x text-danger"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Endodoncia</h5>
+                    <p class="text-muted text-center">
+                        Tratamientos de conducto para salvar tus piezas dentales.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-crown fa-3x" style="color: #ffc107;"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Prótesis</h5>
+                    <p class="text-muted text-center">
+                        Coronas, puentes e implantes dentales de alta calidad.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-especialidad p-4 h-100">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-child fa-3x" style="color: #6f42c1;"></i>
+                    </div>
+                    <h5 class="fw-bold text-center">Odontopediatría</h5>
+                    <p class="text-muted text-center">
+                        Cuidado dental especializado para los más pequeños.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contacto y Formulario -->
+<section id="contacto" class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mb-4">
+                <h2 class="fw-bold mb-4">Contáctanos</h2>
+                <p class="mb-3">
+                    <i class="fas fa-map-marker-alt text-primary"></i> 
+                    <strong>Ubicación:</strong> Caracas, Venezuela
+                </p>
+                <p class="mb-3">
+                    <i class="fas fa-phone text-primary"></i> 
+                    <strong>Teléfonos:</strong><br>
+                    +58 (212) 232-93-46<br>
+                    +58 (414) 223-39-33
+                </p>
+                <p class="mb-3">
+                    <i class="fas fa-clock text-primary"></i> 
+                    <strong>Horario:</strong><br>
+                    Lunes a Viernes<br>
+                    8:00 AM - 12:00 PM<br>
+                    1:00 PM - 6:00 PM<br>
+                    <small class="text-danger">Previa cita</small>
+                </p>
+            </div>
+            <div class="col-md-7" id="form-cita">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h4 class="mb-0"><i class="fas fa-calendar-plus"></i> Solicitar Cita</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" action="{{ url_for('public.solicitar_cita') }}">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> Nombre Completo *
+                                </label>
+                                <input type="text" name="nombre" class="form-control" required 
+                                       placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> Teléfono *
+                                </label>
+                                <input type="tel" name="telefono" class="form-control" required 
+                                       placeholder="Ej: +58 414 123-4567">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </label>
+                                <input type="email" name="email" class="form-control" 
+                                       placeholder="ejemplo@correo.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar"></i> Fecha Preferida (Opcional)
+                                </label>
+                                <input type="date" name="fecha" class="form-control">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-comment"></i> Motivo de Consulta
+                                </label>
+                                <textarea name="mensaje" class="form-control" rows="3" 
+                                          placeholder="Describe el motivo de tu consulta..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-cita w-100 py-2">
+                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                            </button>
+                            <p class="text-muted text-center mt-3 mb-0 small">
+                                <i class="fas fa-info-circle"></i> 
+                                Nos comunicaremos contigo en 24 horas para confirmar tu cita.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-white" style="background: linear-gradient(135deg, #0a5c8e 0%, #1b7aaa 100%);">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3">¿Listo para mejorar tu sonrisa?</h2>
+        <p class="lead mb-4">Agenda tu cita hoy mismo</p>
+        <a href="#form-cita" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-calendar-check"></i> Solicitar Cita Ahora
+        </a>
+    </div>
+</section>
+{% endblock %}

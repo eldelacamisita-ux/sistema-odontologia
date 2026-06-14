@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitudes Pendientes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>⏳ Solicitudes de Citas Pendientes de Aprobación</h2>
+            <p class="text-muted">Citas solicitadas por pacientes registrados que requieren aprobación</p>
+        </div>
+    </div>
+
+    {% if solicitudes %}
+        <div class="alert alert-info">
+            <strong>📋 Total de solicitudes pendientes:</strong> {{ solicitudes|length }}
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Fecha Solicitada</th>
+                        <th>Hora</th>
+                        <th>Motivo</th>
+                        <th>Citas ese día</th>
+                        <th>Solicitada el</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in solicitudes %}
+                    <tr>
+                        <td><strong>{{ cita.paciente.nombre }}</strong></td>
+                        <td>{{ cita.paciente.telefono or 'N/A' }}</td>
+                        <td>{{ cita.paciente.email or 'N/A' }}</td>
+                        <td>{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ cita.fecha_hora.strftime('%H:%M') }}</td>
+                        <td>{{ cita.motivo or 'No especificado' }}</td>
+                        <td>
+                            {% set fecha_key = cita.fecha_hora.date().isoformat() %}
+                            {% set count = contadores_dia.get(fecha_key, 0) %}
+                            {% if count >= 5 %}
+                                <span class="badge bg-danger">{{ count }} citas (COMPLETO)</span>
+                            {% elif count >= 3 %}
+                                <span class="badge bg-warning text-dark">{{ count }} citas</span>
+                            {% else %}
+                                <span class="badge bg-success">{{ count }} citas</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ cita.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <!-- Botón Aprobar -->
+                                <form method="POST" action="{{ url_for('main.aprobar_cita', cita_id=cita.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-success" 
+                                            {% if contadores_dia.get(cita.fecha_hora.date().isoformat(), 0) >= 5 %}
+                                            onclick="return confirm('⚠️ ADVERTENCIA: Este día ya tiene 5 citas confirmadas. ¿Seguro quieres aprobar?')"
+                                            {% else %}
+                                            onclick="return confirm('¿Aprobar esta cita?')"
+                                            {% endif %}>
+                                        <i class="fas fa-check"></i> Aprobar
+                                    </button>
+                                </form>
+
+                                <!-- Botón Rechazar con modal -->
+                                <button type="button" class="btn btn-sm btn-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalRechazar{{ cita.id }}">
+                                    <i class="fas fa-times"></i> Rechazar
+                                </button>
+                            </div>
+
+                            <!-- Modal para rechazar -->
+                            <div class="modal fade" id="modalRechazar{{ cita.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">Rechazar Solicitud</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('main.rechazar_cita', cita_id=cita.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <div class="modal-body">
+                                                <p><strong>Paciente:</strong> {{ cita.paciente.nombre }}</p>
+                                                <p><strong>Fecha solicitada:</strong> {{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+                                                <hr>
+                                                <div class="mb-3">
+                                                    <label for="motivo_rechazo{{ cita.id }}" class="form-label">Motivo del rechazo:</label>
+                                                    <textarea class="form-control" 
+                                                              id="motivo_rechazo{{ cita.id }}" 
+                                                              name="motivo_rechazo" 
+                                                              rows="3" 
+                                                              required
+                                                              placeholder="Ej: Horario no disponible, conflicto de agenda, día completo, etc."></textarea>
+                                                </div>
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-info-circle"></i> Se enviará un email al paciente informándole del rechazo.
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-danger">Rechazar Solicitud</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="fas fa-info-circle"></i> Información</h6>
+            <ul class="mb-0">
+                <li><strong>Límite diario:</strong> Se recomienda máximo 5 citas por día</li>
+                <li><strong>Aprobación:</strong> El paciente recibirá un email de confirmación</li>
+                <li><strong>Rechazo:</strong> El paciente recibirá un email con el motivo</li>
+            </ul>
+        </div>
+    {% else %}
+        <div class="alert alert-success">
+            <h5><i class="fas fa-check-circle"></i> ¡Excelente!</h5>
+            <p class="mb-0">No hay solicitudes pendientes de aprobación en este momento.</p>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table td {
+        vertical-align: middle;
+    }
+    .btn-group {
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}

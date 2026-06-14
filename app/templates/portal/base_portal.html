@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portal del Paciente - OdontoSeguro{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar text-white p-0">
+                <div class="p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-tooth"></i> OdontoSeguro
+                    </h4>
+                    <p class="small mb-4">Portal del Paciente</p>
+                    
+                    <nav class="nav flex-column">
+                        <a class="nav-link {% if request.endpoint == 'portal.index' %}active{% endif %}" 
+                           href="{{ url_for('portal.index') }}">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'portal.mis_citas' %}active{% endif %}" 
+                           href="{{ url_for('portal.mis_citas') }}">
+                            <i class="fas fa-calendar-alt"></i> Mis Citas
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'portal.nueva_cita' %}active{% endif %}" 
+                           href="{{ url_for('portal.nueva_cita') }}">
+                            <i class="fas fa-calendar-plus"></i> Agendar Cita
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'portal.mi_perfil' %}active{% endif %}" 
+                           href="{{ url_for('portal.mi_perfil') }}">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="p-4 mt-auto">
+                    <div class="p-3 bg-white bg-opacity-10 rounded">
+                        <p class="mb-1 small"><i class="fas fa-user-circle"></i> {{ current_user.username }}</p>
+                        <p class="mb-0 small text-white-50">{{ current_user.email }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <div class="mb-4">
+                    <h2>{% block page_title %}Portal del Paciente{% endblock %}</h2>
+                    <p class="text-muted">{% block page_subtitle %}Bienvenido a tu portal personal{% endblock %}</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

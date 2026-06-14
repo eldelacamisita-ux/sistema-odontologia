@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if paciente %}Editar{% else %}Nuevo{% endif %} paciente</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.nombre.label }} {{ form.nombre(class="form-control") }}</div>
+    <div class="mb-3">{{ form.telefono.label }} {{ form.telefono(class="form-control") }}</div>
+    <div class="mb-3">{{ form.email.label }} {{ form.email(class="form-control") }}</div>
+    <div class="mb-3">{{ form.direccion.label }} {{ form.direccion(class="form-control") }}</div>
+    <div class="mb-3">{{ form.fecha_nacimiento.label }} {{ form.fecha_nacimiento(class="form-control") }}</div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('pacientes.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

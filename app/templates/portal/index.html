@@ -1,0 +1,144 @@
+{% extends "portal/base_portal.html" %}
+
+{% block page_title %}Bienvenido, {{ paciente.nombre }}{% endblock %}
+{% block page_subtitle %}Gestiona tus citas y consulta tu información{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Card de Bienvenida -->
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body p-4">
+                <h3><i class="fas fa-smile-beam"></i> ¡Hola, {{ paciente.nombre.split()[0] }}!</h3>
+                <p class="mb-0">Es un placer tenerte en nuestro portal. Aquí puedes gestionar tus citas y actualizar tu información.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Próximas Citas -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-check"></i> Próximas Citas</h5>
+            </div>
+            <div class="card-body">
+                {% if citas_proximas %}
+                    <div class="list-group list-group-flush">
+                        {% for cita in citas_proximas %}
+                        <div class="list-group-item d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    <i class="fas fa-calendar text-primary"></i>
+                                    {{ cita.fecha_hora.strftime('%d/%m/%Y') }}
+                                </h6>
+                                <p class="mb-1">
+                                    <i class="fas fa-clock text-muted"></i>
+                                    {{ cita.fecha_hora.strftime('%H:%M') }}
+                                </p>
+                                <p class="mb-0 text-muted small">
+                                    <i class="fas fa-comment-medical"></i>
+                                    {{ cita.motivo or 'Consulta general' }}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="badge bg-success">Programada</span>
+                                <br>
+                                <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
+                                   class="btn btn-sm btn-outline-danger mt-2"
+                                   onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No tienes citas programadas</p>
+                        <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Agendar Cita
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Historial de Citas -->
+        {% if citas_pasadas %}
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Historial Reciente</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for cita in citas_pasadas %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar text-muted"></i>
+                                    {{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}
+                                </p>
+                                <p class="mb-0 small text-muted">{{ cita.motivo or 'Consulta general' }}</p>
+                            </div>
+                            <span class="badge bg-secondary">Realizada</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('portal.mis_citas') }}" class="btn btn-sm btn-outline-primary">
+                        Ver todas las citas
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
+                <h5>Agendar Cita</h5>
+                <p class="text-muted small">Programa tu próxima visita</p>
+                <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary w-100">
+                    Agendar Ahora
+                </a>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body text-center">
+                <i class="fas fa-user-edit fa-3x text-success mb-3"></i>
+                <h5>Mi Perfil</h5>
+                <p class="text-muted small">Actualiza tus datos</p>
+                <a href="{{ url_for('portal.mi_perfil') }}" class="btn btn-success w-100">
+                    Editar Perfil
+                </a>
+            </div>
+        </div>
+
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6><i class="fas fa-info-circle"></i> Información de Contacto</h6>
+                <hr>
+                <p class="small mb-2">
+                    <i class="fas fa-phone text-primary"></i>
+                    +58 (212) 232-93-46
+                </p>
+                <p class="small mb-2">
+                    <i class="fas fa-envelope text-primary"></i>
+                    info@odontoseguro.com
+                </p>
+                <p class="small mb-0">
+                    <i class="fas fa-clock text-primary"></i>
+                    Lun-Vie: 8am-6pm
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema de Agentes Autónomos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>🤖 Sistema de Agentes Autónomos</h2>
+            <p class="text-muted">Agentes que operan de forma independiente para automatizar tareas del sistema</p>
+        </div>
+    </div>
+
+    <!-- Información del sistema -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> ¿Qué son los Agentes Autónomos?</h5>
+                <p class="mb-0">
+                    Los agentes son procesos automatizados que <strong>perciben</strong> el estado del sistema, 
+                    <strong>toman decisiones</strong> basadas en reglas predefinidas, y <strong>actúan</strong> sin 
+                    intervención humana. Operan en segundo plano para mantener el sistema funcionando eficientemente.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas de agentes -->
+    <div class="row">
+        {% for trabajo in trabajos %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header {% if 'recordatorios' in trabajo.id %}bg-primary{% elif 'seguimiento' in trabajo.id %}bg-warning{% elif 'limpieza' in trabajo.id %}bg-secondary{% elif 'respaldo' in trabajo.id %}bg-info{% elif 'reportes' in trabajo.id %}bg-success{% else %}bg-danger{% endif %} text-white">
+                    <h5 class="mb-0">
+                        {% if 'recordatorios' in trabajo.id %}
+                            🔔 {{ trabajo.nombre }}
+                        {% elif 'seguimiento' in trabajo.id %}
+                            📋 {{ trabajo.nombre }}
+                        {% elif 'limpieza' in trabajo.id %}
+                            🗑️ {{ trabajo.nombre }}
+                        {% elif 'respaldo' in trabajo.id %}
+                            💾 {{ trabajo.nombre }}
+                        {% elif 'reportes' in trabajo.id %}
+                            📊 {{ trabajo.nombre }}
+                        {% elif 'reactivacion' in trabajo.id %}
+                            💌 {{ trabajo.nombre }}
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Descripción del agente -->
+                    <p class="card-text">
+                        {% if 'recordatorios' in trabajo.id %}
+                            <strong>Función:</strong> Envía recordatorios automáticos a pacientes 24 horas antes de su cita.<br>
+                            <strong>Frecuencia:</strong> Diario a las 9:00 AM<br>
+                            <strong>Percepción:</strong> Consulta citas programadas para mañana<br>
+                            <strong>Acción:</strong> Envía emails de recordatorio automáticamente
+                        {% elif 'seguimiento' in trabajo.id %}
+                            <strong>Función:</strong> Detecta citas completadas sin notas clínicas y alerta al personal.<br>
+                            <strong>Frecuencia:</strong> 2 veces al día (9 AM y 9 PM)<br>
+                            <strong>Percepción:</strong> Busca citas sin registro médico<br>
+                            <strong>Acción:</strong> Notifica al odontólogo responsable
+                        {% elif 'limpieza' in trabajo.id %}
+                            <strong>Función:</strong> Elimina datos obsoletos para mantener el sistema limpio.<br>
+                            <strong>Frecuencia:</strong> Diario a las 2:00 AM<br>
+                            <strong>Percepción:</strong> Identifica registros antiguos innecesarios<br>
+                            <strong>Acción:</strong> Elimina citas canceladas de +90 días y solicitudes atendidas de +30 días
+                        {% elif 'respaldo' in trabajo.id %}
+                            <strong>Función:</strong> Crea respaldos automáticos de la base de datos.<br>
+                            <strong>Frecuencia:</strong> Diario a las 3:00 AM<br>
+                            <strong>Percepción:</strong> Detecta la base de datos activa<br>
+                            <strong>Acción:</strong> Crea copia de seguridad con timestamp y elimina backups antiguos
+                        {% elif 'reportes' in trabajo.id %}
+                            <strong>Función:</strong> Genera y envía reportes estadísticos diarios al administrador.<br>
+                            <strong>Frecuencia:</strong> Diario a las 8:00 AM<br>
+                            <strong>Percepción:</strong> Recopila estadísticas del día anterior<br>
+                            <strong>Acción:</strong> Envía reporte por email con métricas clave
+                        {% elif 'reactivacion' in trabajo.id %}
+                            <strong>Función:</strong> Detecta pacientes inactivos y envía mensajes de reactivación.<br>
+                            <strong>Frecuencia:</strong> Solo Lunes a las 10:00 AM<br>
+                            <strong>Percepción:</strong> Busca pacientes sin citas en 6+ meses<br>
+                            <strong>Acción:</strong> Envía emails invitándolos a agendar nueva cita (máx. 10 por ejecución)
+                        {% endif %}
+                    </p>
+                    
+                    <div class="alert {% if 'recordatorios' in trabajo.id %}alert-primary{% elif 'seguimiento' in trabajo.id %}alert-warning{% elif 'limpieza' in trabajo.id %}alert-secondary{% elif 'respaldo' in trabajo.id %}alert-info{% elif 'reportes' in trabajo.id %}alert-success{% else %}alert-danger{% endif %} mb-3">
+                        <strong>⏰ Próxima ejecución:</strong><br>
+                        {{ trabajo.proxima_ejecucion }}
+                    </div>
+
+                    <!-- Botón de ejecución manual -->
+                    <form method="POST" action="{{ url_for('main.ejecutar_agente', agente_id=trabajo.id) }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm {% if 'recordatorios' in trabajo.id %}btn-primary{% elif 'seguimiento' in trabajo.id %}btn-warning{% elif 'limpieza' in trabajo.id %}btn-secondary{% elif 'respaldo' in trabajo.id %}btn-info{% elif 'reportes' in trabajo.id %}btn-success{% else %}btn-danger{% endif %} w-100" 
+                                onclick="return confirm('¿Ejecutar este agente ahora?')">
+                            <i class="fas fa-play"></i> Ejecutar Ahora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📚 Características del Sistema de Agentes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Autonomía</h6>
+                            <p>Los agentes operan sin intervención humana, ejecutándose según horarios predefinidos.</p>
+                            
+                            <h6><i class="fas fa-eye text-primary"></i> Percepción</h6>
+                            <p>Cada agente observa y analiza el estado del sistema (base de datos, archivos, etc.).</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-bolt text-warning"></i> Acción</h6>
+                            <p>Ejecutan acciones automáticas como enviar emails, crear backups o limpiar datos.</p>
+                            
+                            <h6><i class="fas fa-shield-alt text-info"></i> Seguridad</h6>
+                            <p>Todas las acciones son registradas y pueden ser monitoreadas desde este panel.</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="alert alert-success mb-0">
+                        <strong><i class="fas fa-lightbulb"></i> Ventajas del Sistema:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Reduce carga de trabajo manual del personal</li>
+                            <li>Mejora la comunicación con pacientes</li>
+                            <li>Asegura integridad de datos con respaldos automáticos</li>
+                            <li>Mantiene el sistema limpio y optimizado</li>
+                            <li>Proporciona insights mediante reportes automáticos</li>
+                            <li>Recupera pacientes inactivos proactivamente</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

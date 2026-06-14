@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USE_TLS=${MAIL_USE_TLS}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - CLINICA_EMAIL=${CLINICA_EMAIL}
+      - CLINICA_NOMBRE=${CLINICA_NOMBRE}
+      - BASE_URL=${BASE_URL}
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped

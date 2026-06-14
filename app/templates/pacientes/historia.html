@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between">
+    <h2><i class="fas fa-notes-medical"></i> Historia clínica de {{ paciente.nombre }}</h2>
+    <a href="{{ url_for('pacientes.listar') }}" class="btn btn-secondary">← Volver</a>
+</div>
+
+{% if current_user.rol == 'odontologo' %}
+<div class="card mt-3">
+    <div class="card-header bg-info text-white">Agregar nueva nota clínica (datos cifrados)</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('pacientes.nueva_nota', paciente_id=paciente.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label>Patologías diagnosticadas</label>
+                <textarea name="patologias" class="form-control" rows="2" placeholder="Ej: Caries en 16, periodontitis..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label>Tratamiento indicado</label>
+                <textarea name="tratamiento" class="form-control" rows="2" placeholder="Obturación, limpieza..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label>Observaciones / evolución</label>
+                <textarea name="observaciones" class="form-control" rows="2" placeholder="Notas adicionales"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar nota</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<h3 class="mt-4">Historial clínico</h3>
+{% if notas %}
+    {% for nota in notas %}
+    <div class="card mt-2">
+        <div class="card-header bg-light">
+            <strong>{{ nota.fecha.strftime('%d/%m/%Y %H:%M') }}</strong> - Por: {{ nota.usuario.username }}
+        </div>
+        <div class="card-body">
+            <p><strong>🦷 Patologías:</strong> {{ nota.patologias_text or '—' }}</p>
+            <p><strong>💊 Tratamiento:</strong> {{ nota.tratamiento_text or '—' }}</p>
+            <p><strong>📝 Observaciones:</strong> {{ nota.observaciones_text or '—' }}</p>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-secondary">No hay notas clínicas registradas.</div>
+{% endif %}
+{% endblock %}

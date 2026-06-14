@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitudes Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>🌐 Solicitudes de Citas desde la Web</h2>
+            <p class="text-muted">Solicitudes de personas que aún no están registradas en el sistema</p>
+        </div>
+    </div>
+
+    {% if solicitudes %}
+        <div class="alert alert-info">
+            <strong>📋 Total de solicitudes web pendientes:</strong> {{ solicitudes|length }}
+        </div>
+
+        <div class="row">
+            {% for solicitud in solicitudes %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user"></i> {{ solicitud.nombre }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
+                                    <a href="tel:{{ solicitud.telefono }}" class="text-decoration-none">
+                                        {{ solicitud.telefono }}
+                                    </a>
+                                </p>
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                                    {% if solicitud.email %}
+                                        <a href="mailto:{{ solicitud.email }}" class="text-decoration-none">
+                                            {{ solicitud.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">No proporcionado</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-calendar"></i> Fecha Preferida:</strong><br>
+                                    {% if solicitud.fecha_solicitada %}
+                                        {{ solicitud.fecha_solicitada.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        <span class="text-muted">No especificada</span>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-2">
+                                    <strong><i class="fas fa-clock"></i> Solicitado:</strong><br>
+                                    {{ solicitud.fecha_solicitud.strftime('%d/%m/%Y %H:%M') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if solicitud.mensaje %}
+                        <hr>
+                        <p class="mb-0">
+                            <strong><i class="fas fa-comment"></i> Mensaje:</strong><br>
+                            <span class="text-muted">{{ solicitud.mensaje }}</span>
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-light">
+                        <form method="POST" action="{{ url_for('main.marcar_solicitud_atendida', solicitud_id=solicitud.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Has contactado con este paciente y gestionado su cita?')">
+                                <i class="fas fa-check"></i> Marcar como Atendida
+                            </button>
+                        </form>
+                        
+                        <a href="tel:{{ solicitud.telefono }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-phone"></i> Llamar
+                        </a>
+                        
+                        {% if solicitud.email %}
+                        <a href="mailto:{{ solicitud.email }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="alert alert-warning mt-4">
+            <h6><i class="fas fa-info-circle"></i> Proceso Recomendado</h6>
+            <ol class="mb-0">
+                <li><strong>Contactar</strong> al solicitante por teléfono o email</li>
+                <li><strong>Verificar</strong> disponibilidad y coordinar fecha/hora</li>
+                <li><strong>Registrar</strong> al paciente en el sistema si aún no existe</li>
+                <li><strong>Crear</strong> la cita en el sistema</li>
+                <li><strong>Marcar</strong> esta solicitud como atendida</li>
+            </ol>
+        </div>
+    {% else %}
+        <div class="alert alert-success">
+            <h5><i class="fas fa-check-circle"></i> ¡Todo al día!</h5>
+            <p class="mb-0">No hay solicitudes web pendientes de atender.</p>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

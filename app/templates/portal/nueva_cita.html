@@ -1,0 +1,138 @@
+{% extends "portal/base_portal.html" %}
+
+{% block page_title %}Agendar Nueva Cita{% endblock %}
+{% block page_subtitle %}Selecciona fecha, hora y motivo de tu consulta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-plus"></i> Nueva Cita</h5>
+            </div>
+            <div class="card-body p-4">
+                
+                {% if fechas_ocupadas %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Atención:</strong> Algunas fechas están completas (máximo 5 citas por día).
+                    Se mostrarán deshabilitadas en el calendario.
+                </div>
+                {% endif %}
+                
+                <form method="POST" id="formCita">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-calendar"></i> Fecha *
+                            </label>
+                            <input type="date" name="fecha" id="inputFecha" class="form-control" required
+                                   min="{{ fecha_hoy }}">
+                            <small class="text-muted">
+                                <span id="disponibilidad-info" class="text-success"></span>
+                            </small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-clock"></i> Hora *
+                            </label>
+                            <select name="hora" class="form-select" required>
+                                <option value="">Selecciona una hora</option>
+                                <option value="08:00">08:00 AM</option>
+                                <option value="08:30">08:30 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="13:30">01:30 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                                <option value="16:00">04:00 PM</option>
+                                <option value="16:30">04:30 PM</option>
+                                <option value="17:00">05:00 PM</option>
+                                <option value="17:30">05:30 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-comment-medical"></i> Motivo de la Consulta *
+                        </label>
+                        <textarea name="motivo" class="form-control" rows="4" required
+                                  placeholder="Describe brevemente el motivo de tu consulta..."></textarea>
+                        <small class="text-muted">Por ejemplo: dolor dental, limpieza, revisión general, etc.</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Nota:</strong> Tu cita será revisada por nuestro equipo en un plazo de 24 horas.
+                        Te enviaremos una confirmación o te sugeriremos otra fecha si no hay disponibilidad.
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('portal.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-check"></i> Solicitar Cita
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <h6><i class="fas fa-clock"></i> Horarios de Atención</h6>
+                <hr>
+                <p class="mb-1"><strong>Lunes a Viernes:</strong></p>
+                <p class="mb-2">8:00 AM - 12:00 PM | 1:00 PM - 6:00 PM</p>
+                <p class="mb-0 text-muted small">
+                    <i class="fas fa-users"></i> Máximo 5 citas por día
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fechas ocupadas desde el servidor
+const fechasOcupadas = {{ fechas_ocupadas | tojson }};
+
+document.getElementById('inputFecha').addEventListener('input', function() {
+    const fechaSeleccionada = this.value;
+    const info = document.getElementById('disponibilidad-info');
+    
+    if (fechasOcupadas.includes(fechaSeleccionada)) {
+        info.innerHTML = '<i class="fas fa-times-circle"></i> Día completo - Por favor selecciona otra fecha';
+        info.className = 'text-danger fw-bold';
+        this.setCustomValidity('Este día está completo');
+    } else if (fechaSeleccionada) {
+        info.innerHTML = '<i class="fas fa-check-circle"></i> Disponibilidad confirmada';
+        info.className = 'text-success';
+        this.setCustomValidity('');
+    } else {
+        info.innerHTML = '';
+        this.setCustomValidity('');
+    }
+});
+
+// Validación al enviar
+document.getElementById('formCita').addEventListener('submit', function(e) {
+    const fechaSeleccionada = document.getElementById('inputFecha').value;
+    
+    if (fechasOcupadas.includes(fechaSeleccionada)) {
+        e.preventDefault();
+        alert('⚠️ El día seleccionado está completo. Por favor elige otra fecha.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "portal/base_portal.html" %}
+
+{% block page_title %}Mi Perfil{% endblock %}
+{% block page_subtitle %}Actualiza tu información personal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-user-edit"></i> Información Personal</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i> Nombre Completo
+                        </label>
+                        <input type="text" class="form-control" value="{{ paciente.nombre }}" readonly>
+                        <small class="text-muted">Para cambiar tu nombre, contacta a la clínica</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" class="form-control" value="{{ paciente.email }}" readonly>
+                        <small class="text-muted">Para cambiar tu email, contacta a la clínica</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-phone"></i> Teléfono *
+                            </label>
+                            <input type="tel" name="telefono" class="form-control" 
+                                   value="{{ paciente.telefono or '' }}" required
+                                   placeholder="+58 414 123-4567">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
+                            </label>
+                            <input type="date" name="fecha_nacimiento" class="form-control"
+                                   value="{{ paciente.fecha_nacimiento.strftime('%Y-%m-%d') if paciente.fecha_nacimiento else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-map-marker-alt"></i> Dirección
+                        </label>
+                        <textarea name="direccion" class="form-control" rows="3"
+                                  placeholder="Ingresa tu dirección completa">{{ paciente.direccion or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('portal.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6><i class="fas fa-user-circle"></i> Información de Cuenta</h6>
+                <hr>
+                <p class="mb-2">
+                    <strong>Usuario:</strong><br>
+                    {{ usuario.username }}
+                </p>
+                <p class="mb-2">
+                    <strong>Tipo de Cuenta:</strong><br>
+                    <span class="badge bg-info">Paciente</span>
+                </p>
+                <p class="mb-0">
+                    <strong>Miembro desde:</strong><br>
+                    {{ usuario.fecha_registro.strftime('%d/%m/%Y') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="fas fa-shield-alt"></i> Seguridad</h6>
+                <hr>
+                <p class="small text-muted mb-3">
+                    Mantén tu cuenta segura actualizando tu contraseña regularmente.
+                </p>
+                <button class="btn btn-sm btn-outline-primary w-100" disabled>
+                    <i class="fas fa-key"></i> Cambiar Contraseña
+                </button>
+                <small class="text-muted d-block mt-2">Próximamente disponible</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

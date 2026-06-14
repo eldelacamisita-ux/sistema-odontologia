@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-users"></i> Total pacientes</h5>
+                <p class="display-4">{{ total_pacientes }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-calendar-day"></i> Citas hoy</h5>
+                <p class="display-4">{{ total_citas_hoy }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <a href="{{ url_for('main.solicitudes_pendientes') }}" class="text-decoration-none">
+            <div class="card text-white {% if solicitudes_pendientes > 0 %}bg-warning{% else %}bg-secondary{% endif %}">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-clock"></i> Pendientes</h5>
+                    <p class="display-4">{{ solicitudes_pendientes or 0 }}</p>
+                    {% if solicitudes_pendientes > 0 %}
+                    <small><i class="fas fa-exclamation-circle"></i> Requieren aprobación</small>
+                    {% else %}
+                    <small><i class="fas fa-check-circle"></i> Todo al día</small>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-4">
+        <a href="{{ url_for('main.solicitudes_publicas') }}" class="text-decoration-none">
+            <div class="card text-white {% if solicitudes_publicas > 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-envelope"></i> Solicitudes Web</h5>
+                    <p class="display-4">{{ solicitudes_publicas or 0 }}</p>
+                    {% if solicitudes_publicas > 0 %}
+                    <small><i class="fas fa-exclamation-triangle"></i> Sin atender</small>
+                    {% else %}
+                    <small><i class="fas fa-check-circle"></i> Todas atendidas</small>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning">🤖 Agente: Próximas citas (48h)</div>
+            <div class="card-body">
+                {% if citas_proximas %}
+                <ul class="list-group">
+                    {% for cita in citas_proximas %}
+                    <li class="list-group-item">
+                        <strong>{{ cita.paciente.nombre }}</strong><br>
+                        📅 {{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}<br>
+                        📝 {{ cita.motivo or 'Sin motivo' }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No hay citas programadas en las próximas 48 horas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">📊 Citas por día de semana</div>
+            <div class="card-body">
+                <canvas id="citasChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col text-center">
+        <a href="{{ url_for('citas.nueva') }}" class="btn btn-primary btn-lg">➕ Agendar cita</a>
+        <a href="{{ url_for('pacientes.nuevo') }}" class="btn btn-secondary btn-lg">📝 Nuevo paciente</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chartData = {{ chart_data|tojson }};
+    const ctx = document.getElementById('citasChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.map(item => item.dia),
+            datasets: [{
+                label: 'Número de citas',
+                data: chartData.map(item => item.total),
+                backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true, integer: true } } }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+instance/
+*.db
+*.sqlite
+venv/
+env/
+instance/backups/
+build/
+dist/
+dist_completa/
+compilacion/
+*.spec

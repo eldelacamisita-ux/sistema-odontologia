@@ -1,0 +1,26 @@
+# Archivos y directorios a excluir del build de Docker
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+env/
+ENV/
+instance/*.db
+instance/backups/
+*.log
+.git/
+.gitignore
+.vscode/
+.idea/
+*.md
+!README.md
+*.bat
