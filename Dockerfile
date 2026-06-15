@@ -1,5 +1,5 @@
 # Dockerfile para Sistema de Gestión Odontológica
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Establecer directorio de trabajo
 WORKDIR /app

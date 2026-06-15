@@ -17,9 +17,13 @@ class Config:
     # Base de datos: PostgreSQL en producción (Render), SQLite en local
     DATABASE_URL = os.environ.get('DATABASE_URL')
     if DATABASE_URL:
-        # Render usa postgres://, SQLAlchemy necesita postgresql://
+        # Render usa postgres://, necesitamos postgresql+psycopg:// para Psycopg 3
         if DATABASE_URL.startswith('postgres://'):
-            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg://', 1)
+        elif DATABASE_URL.startswith('postgresql://'):
+            # Asegurar que use psycopg (Psycopg 3)
+            if '+psycopg' not in DATABASE_URL:
+                DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1)
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
         # SQLite para desarrollo local
