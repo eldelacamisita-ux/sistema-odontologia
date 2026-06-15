@@ -32,23 +32,29 @@
 
 ---
 
-## 🔥 ERROR DE RENDER SOLUCIONADO
+## 🔥 ERRORES DE RENDER SOLUCIONADOS
 
-### ❌ El error que tenías:
+### ❌ Error 1: psycopg2-binary incompatible
 ```
 undefined symbol: _PyInterpreterState_Get
 ```
 
-### ✅ Solución aplicada:
+**✅ Solución aplicada:**
+1. Migrado a `psycopg[binary]` (Psycopg 3)
+2. config.py usa `postgresql+psycopg://`
+3. Python 3.11 fijo en render.yaml
 
-1. **Migrado a Psycopg 3** (más moderno)
-   - `psycopg2-binary` → `psycopg[binary]`
+---
 
-2. **config.py actualizado** para usar driver correcto
-   - `postgresql://` → `postgresql+psycopg://`
+### ❌ Error 2: strftime no existe en PostgreSQL
+```
+function strftime(unknown, timestamp without time zone) does not exist
+```
 
-3. **Python 3.11 fijado** en render.yaml
-   - Mayor estabilidad y compatibilidad
+**✅ Solución aplicada:**
+1. Reemplazado `func.strftime()` por `extract()`
+2. Conteo de citas usa rangos de fecha
+3. Compatible con PostgreSQL y SQLite
 
 **Ahora está 100% compatible con Render** ✅
 
@@ -89,11 +95,12 @@ Después del primer deploy, agregar tu URL real en las variables de entorno.
 - Capturas conceptuales
 - Solución de problemas
 
-### Para Entender el Error:
-👉 **[FIX_RENDER_ERROR.md](FIX_RENDER_ERROR.md)**
-- Explicación técnica
-- Por qué falló
-- Por qué funciona ahora
+### Para Entender los Errores:
+👉 **[FIX_RENDER_ERROR.md](FIX_RENDER_ERROR.md)** - Error psycopg2
+👉 **[FIX_STRFTIME_ERROR.md](FIX_STRFTIME_ERROR.md)** - Error strftime
+- Explicaciones técnicas
+- Por qué fallaron
+- Por qué funcionan ahora
 
 ### Para Comparar Opciones:
 👉 **[DOCKER_VS_RENDER.md](DOCKER_VS_RENDER.md)**

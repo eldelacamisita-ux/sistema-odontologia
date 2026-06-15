@@ -6,7 +6,7 @@ from app.main import main_bp
 from app.models import Cita, Paciente, LogAuditoria
 from app.utils import rol_requerido, registrar_log
 from app.email_utils import enviar_confirmacion_cita, enviar_rechazo_cita
-from sqlalchemy import func
+from sqlalchemy import func, extract
 
 @main_bp.route('/')
 @login_required
@@ -27,16 +27,31 @@ def index():
     solicitudes_publicas = CitaPublica.query.filter_by(atendido=False).count()
     
     total_pacientes = Paciente.query.count()
+    
+    # Contar citas de hoy - Compatible con PostgreSQL y SQLite
+    inicio_hoy = datetime(ahora.year, ahora.month, ahora.day)
+    fin_hoy = inicio_hoy + timedelta(days=1)
     total_citas_hoy = Cita.query.filter(
-        func.date(Cita.fecha_hora) == func.date(ahora)
+        Cita.fecha_hora >= inicio_hoy,
+        Cita.fecha_hora < fin_hoy
     ).count()
 
+    # Citas por día de la semana - Compatible con PostgreSQL y SQLite
+    # EXTRACT('dow', ...) devuelve 0=Domingo, 1=Lunes, ..., 6=Sábado
     citas_por_dia = db.session.query(
-        func.strftime('%w', Cita.fecha_hora).label('dia'),
-        func.count(Cita.id)
+        extract('dow', Cita.fecha_hora).label('dia'),
+        func.count(Cita.id).label('total')
     ).group_by('dia').all()
-    dias_map = {0:'Dom',1:'Lun',2:'Mar',3:'Mié',4:'Jue',5:'Vie',6:'Sáb'}
-    chart_data = [{'dia': dias_map.get(int(d[0]), d[0]), 'total': d[1]} for d in citas_por_dia if d[0] is not None]
+    # Mapeo de días: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+    dias_map = {0:'Dom', 1:'Lun', 2:'Mar', 3:'Mié', 4:'Jue', 5:'Vie', 6:'Sáb'}
+    
+    # Convertir resultados a formato de gráfico
+    chart_data = []
+    for d in citas_por_dia:
+        if d[0] is not None:
+            # d[0] puede ser int, Decimal o string dependiendo de la BD
+            dia_num = int(d[0])
+            chart_data.append({'dia': dias_map.get(dia_num, str(dia_num)), 'total': d[1]})
 
     return render_template('index.html',
                            citas_proximas=citas_proximas,

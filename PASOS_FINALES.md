@@ -8,6 +8,10 @@ Tu proyecto está **100% listo** para producción. Solo faltan estos pasos:
 
 ## 📝 Paso 1: Subir Cambios a GitHub
 
+**⚠️ IMPORTANTE:** Ya apliqué 2 correcciones críticas para Render:
+1. ✅ Migración a psycopg3 (Psycopg 3)
+2. ✅ Reemplazo de strftime por EXTRACT
+
 Abre la terminal en la carpeta de tu proyecto y ejecuta:
 
 ```bash
@@ -17,8 +21,8 @@ git init
 # Agregar todos los archivos
 git add .
 
-# Hacer commit
-git commit -m "Sistema de Gestión Odontológica - Listo para Render.com"
+# Hacer commit con mensaje descriptivo
+git commit -m "Fix: PostgreSQL compatibility - psycopg3 y EXTRACT en vez de strftime"
 
 # Crear repositorio en GitHub y conectar
 git remote add origin https://github.com/TU_USUARIO/sistema-odontologia.git
