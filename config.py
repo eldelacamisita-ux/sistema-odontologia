@@ -40,6 +40,13 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME'))
     
+    # Deshabilitar emails si no está configurado (útil para testing o cuando no hay servidor SMTP)
+    MAIL_SUPPRESS_SEND = not bool(MAIL_USERNAME and MAIL_PASSWORD)
+    
+    # Configuración de Resend (alternativa moderna para emails)
+    RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+    RESEND_FROM_EMAIL = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
+    
     # Información de la clínica
     CLINICA_EMAIL = os.environ.get('CLINICA_EMAIL', 'admin@clinica.com')
     CLINICA_NOMBRE = os.environ.get('CLINICA_NOMBRE', 'Clínica Dental')

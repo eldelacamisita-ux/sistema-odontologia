@@ -1,5 +1,6 @@
 """
 Utilidades para envío de emails
+Soporta Flask-Mail (SMTP) y Resend
 """
 from flask import current_app, render_template_string
 from flask_mail import Message
@@ -7,7 +8,7 @@ from app import mail
 from threading import Thread
 
 def send_async_email(app, msg):
-    """Enviar email de forma asíncrona"""
+    """Enviar email de forma asíncrona con Flask-Mail"""
     with app.app_context():
         try:
             mail.send(msg)
@@ -16,14 +17,26 @@ def send_async_email(app, msg):
 
 def send_email(subject, recipients, text_body, html_body=None):
     """
-    Enviar un email
+    Enviar un email usando Resend (preferido) o Flask-Mail (fallback)
     
     Args:
         subject: Asunto del email
-        recipients: Lista de destinatarios
+        recipients: Lista de destinatarios o string
         text_body: Cuerpo del mensaje en texto plano
         html_body: Cuerpo del mensaje en HTML (opcional)
     """
+    # Intentar con Resend primero
+    if current_app.config.get('RESEND_API_KEY'):
+        from app.resend_utils import send_email_resend
+        # Resend usa solo el email del destinatario
+        recipient_email = recipients if isinstance(recipients, str) else recipients[0]
+        return send_email_resend(recipient_email, subject, html_body or text_body)
+    
+    # Fallback a Flask-Mail (SMTP)
+    if not current_app.config.get('MAIL_USERNAME'):
+        print("⚠️ Email no configurado - Email no enviado")
+        return False
+    
     try:
         msg = Message(
             subject=subject,
@@ -36,7 +49,7 @@ def send_email(subject, recipients, text_body, html_body=None):
         Thread(target=send_async_email, args=(current_app._get_current_object(), msg)).start()
         return True
     except Exception as e:
-        print(f"Error al preparar email: {e}")
+        print(f"⚠️ Error al preparar email: {e}")
         return False
 
 def enviar_notificacion_solicitud_publica(solicitud):
