@@ -17,6 +17,8 @@
     <div class="card">
         <div class="card-body">
             <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
                 <div class="mb-3">
                     <label for="monto" class="form-label">Monto ($)</label>
                     <select name="monto" id="monto" class="form-select" required>

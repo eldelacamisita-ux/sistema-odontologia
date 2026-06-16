@@ -35,9 +35,8 @@
                                 </a>
                             </td>
                             <td>
-                                <form method="POST" 
-                                      action="{{ url_for('citas.aprobar_comprobante', id=c.id) }}" 
-                                      style="display:inline;">
+                                <form method="POST" action="{{ url_for('citas.aprobar_comprobante', id=c.id) }}" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" 
                                             class="btn btn-success btn-sm mb-1"
                                             onclick="return confirm('¿Aprobar este comprobante?')">
@@ -61,6 +60,7 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form method="POST" action="{{ url_for('citas.rechazar_comprobante', id=c.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <div class="modal-body">
                                                     <p><strong>Paciente:</strong> {{ c.paciente.nombre }}</p>
                                                     <div class="mb-3">
