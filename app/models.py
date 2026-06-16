@@ -126,3 +126,24 @@ class CitaPublica(db.Model):
     mensaje = db.Column(db.Text)
     fecha_solicitud = db.Column(db.DateTime, default=datetime.utcnow)
     atendido = db.Column(db.Boolean, default=False)
+
+class HorarioDoctor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    doctor = db.Column(db.String(100), nullable=False)  # Ej: "Dr. Nelson Rodriguez"
+    dia_semana = db.Column(db.String(20), nullable=False)  # Ej: "Lunes", "Martes", "Miércoles"
+    hora_inicio = db.Column(db.Time, nullable=False)
+    hora_fin = db.Column(db.Time, nullable=False)
+    activo = db.Column(db.Boolean, default=True)
+
+class ComprobantePago(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cita_id = db.Column(db.Integer, db.ForeignKey('cita.id'), nullable=False)
+    paciente_id = db.Column(db.Integer, db.ForeignKey('paciente.id'), nullable=False)
+    monto = db.Column(db.Float, nullable=False)  # 5 o 10 USD
+    foto_path = db.Column(db.String(200), nullable=False)  # Ruta del archivo subido
+    fecha_subida = db.Column(db.DateTime, default=datetime.utcnow)
+    estado = db.Column(db.String(20), default='pendiente')  # pendiente, aprobado, rechazado
+    observaciones = db.Column(db.String(200))  # Comentario del admin
+    
+    cita = db.relationship('Cita', backref='comprobante', uselist=False)
+    paciente = db.relationship('Paciente', backref='comprobantes')

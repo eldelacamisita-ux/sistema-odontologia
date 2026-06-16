@@ -12,3 +12,13 @@ dist/
 dist_completa/
 compilacion/
 *.spec
+
+# Archivos de comprobantes de pago (no subir a git)
+app/static/comprobantes/*.jpg
+app/static/comprobantes/*.jpeg
+app/static/comprobantes/*.png
+app/static/comprobantes/*.gif
+app/static/comprobantes/*.pdf
+
+# Mantener la carpeta pero no su contenido
+!app/static/comprobantes/.gitkeep

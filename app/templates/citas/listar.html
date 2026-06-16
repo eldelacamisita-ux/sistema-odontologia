@@ -19,10 +19,28 @@
                     <span class="badge {% if c.estado == 'programada' %}bg-primary{% elif c.estado == 'realizada' %}bg-success{% else %}bg-danger{% endif %}">
                         {{ c.estado }}
                     </span>
+                    
+                    <!-- Indicador de comprobante -->
+                    {% if c.comprobante %}
+                        {% if c.comprobante.estado == 'aprobado' %}
+                        <span class="badge bg-success ms-1"><i class="fas fa-check-circle"></i> Pago aprobado</span>
+                        {% elif c.comprobante.estado == 'pendiente' %}
+                        <span class="badge bg-warning ms-1"><i class="fas fa-clock"></i> Pago pendiente</span>
+                        {% elif c.comprobante.estado == 'rechazado' %}
+                        <span class="badge bg-danger ms-1"><i class="fas fa-times-circle"></i> Pago rechazado</span>
+                        {% endif %}
+                    {% endif %}
                 </td>
                 <td>
-                    <a href="{{ url_for('citas.editar', id=c.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                    <a href="{{ url_for('citas.eliminar', id=c.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Cancelar cita?')">Cancelar</a>
+                    <a href="{{ url_for('citas.editar', id=c.id) }}" class="btn btn-sm btn-warning mb-1">Editar</a>
+                    <a href="{{ url_for('citas.eliminar', id=c.id) }}" class="btn btn-sm btn-danger mb-1" onclick="return confirm('¿Cancelar cita?')">Cancelar</a>
+                    
+                    <!-- Botón subir comprobante solo si la cita está realizada y no tiene comprobante aprobado -->
+                    {% if c.estado == 'realizada' and (not c.comprobante or c.comprobante.estado == 'rechazado') %}
+                    <a href="{{ url_for('citas.subir_comprobante', cita_id=c.id) }}" class="btn btn-sm btn-success mb-1">
+                        <i class="fas fa-upload"></i> Subir comprobante
+                    </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

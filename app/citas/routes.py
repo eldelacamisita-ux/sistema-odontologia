@@ -1,11 +1,19 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from datetime import datetime
 from app import db
 from app.citas import citas_bp
 from app.forms import CitaForm
-from app.models import Cita, Paciente
-from app.utils import registrar_log
+from app.models import Cita, Paciente, ComprobantePago
+from app.utils import registrar_log, rol_requerido
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'app/static/comprobantes'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @citas_bp.route('/')
 @login_required
@@ -65,3 +73,76 @@ def eliminar(id):
     registrar_log(f'Eliminó cita ID {id}', 'cita', id)
     flash('Cita cancelada', 'warning')
     return redirect(url_for('citas.listar'))
+
+
+@citas_bp.route('/subir-comprobante/<int:cita_id>', methods=['GET', 'POST'])
+@login_required
+def subir_comprobante(cita_id):
+    cita = Cita.query.get_or_404(cita_id)
+    # Solo el paciente dueño de la cita o el admin puede subir
+    if current_user.rol != 'odontologo' and current_user.paciente_id != cita.paciente_id:
+        abort(403)
+    
+    if request.method == 'POST':
+        if 'foto' not in request.files:
+            flash('No se seleccionó ningún archivo', 'danger')
+            return redirect(request.url)
+        file = request.files['foto']
+        if file.filename == '':
+            flash('No se seleccionó ningún archivo', 'danger')
+            return redirect(request.url)
+        if not allowed_file(file.filename):
+            flash('Formato no permitido. Use PNG, JPG, JPEG, GIF o PDF.', 'danger')
+            return redirect(request.url)
+        
+        # Crear carpeta si no existe
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        filename = secure_filename(f"cita_{cita_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+        
+        # Guardar en base de datos
+        comprobante = ComprobantePago(
+            cita_id=cita_id,
+            paciente_id=cita.paciente_id,
+            monto=float(request.form['monto']),
+            foto_path=filepath,
+            estado='pendiente'
+        )
+        db.session.add(comprobante)
+        db.session.commit()
+        registrar_log(f'Subió comprobante de pago para cita ID {cita_id}', 'comprobantepago', comprobante.id)
+        flash('Comprobante subido correctamente. Espera la aprobación.', 'success')
+        return redirect(url_for('citas.listar'))
+    
+    return render_template('citas/subir_comprobante.html', cita=cita)
+
+@citas_bp.route('/comprobantes/pendientes')
+@login_required
+@rol_requerido('odontologo')
+def comprobantes_pendientes():
+    comprobantes = ComprobantePago.query.filter_by(estado='pendiente').all()
+    return render_template('citas/comprobantes_pendientes.html', comprobantes=comprobantes)
+
+@citas_bp.route('/comprobantes/aprobar/<int:id>', methods=['POST'])
+@login_required
+@rol_requerido('odontologo')
+def aprobar_comprobante(id):
+    comprobante = ComprobantePago.query.get_or_404(id)
+    comprobante.estado = 'aprobado'
+    db.session.commit()
+    registrar_log(f'Aprobó comprobante ID {id}', 'comprobantepago', id)
+    flash('Comprobante aprobado', 'success')
+    return redirect(url_for('citas.comprobantes_pendientes'))
+
+@citas_bp.route('/comprobantes/rechazar/<int:id>', methods=['POST'])
+@login_required
+@rol_requerido('odontologo')
+def rechazar_comprobante(id):
+    comprobante = ComprobantePago.query.get_or_404(id)
+    comprobante.estado = 'rechazado'
+    comprobante.observaciones = request.form.get('observaciones', '')
+    db.session.commit()
+    registrar_log(f'Rechazó comprobante ID {id}: {comprobante.observaciones}', 'comprobantepago', id)
+    flash('Comprobante rechazado', 'warning')
+    return redirect(url_for('citas.comprobantes_pendientes'))

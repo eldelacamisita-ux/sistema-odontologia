@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-file-invoice-dollar"></i> Comprobantes Pendientes de Aprobación</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if comprobantes %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Cita</th>
+                            <th>Monto</th>
+                            <th>Fecha subida</th>
+                            <th>Comprobante</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in comprobantes %}
+                        <tr>
+                            <td><strong>{{ c.paciente.nombre }}</strong></td>
+                            <td>{{ c.cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td><span class="badge bg-success">${{ c.monto }}</span></td>
+                            <td>{{ c.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('static', filename=c.foto_path.replace('app/static/', '')) }}" 
+                                   target="_blank">
+                                    <img src="{{ url_for('static', filename=c.foto_path.replace('app/static/', '')) }}" 
+                                         alt="Comprobante" 
+                                         style="max-width:100px; max-height:100px; cursor:pointer;"
+                                         class="img-thumbnail">
+                                </a>
+                            </td>
+                            <td>
+                                <form method="POST" 
+                                      action="{{ url_for('citas.aprobar_comprobante', id=c.id) }}" 
+                                      style="display:inline;">
+                                    <button type="submit" 
+                                            class="btn btn-success btn-sm mb-1"
+                                            onclick="return confirm('¿Aprobar este comprobante?')">
+                                        <i class="fas fa-check"></i> Aprobar
+                                    </button>
+                                </form>
+                                
+                                <button type="button" 
+                                        class="btn btn-danger btn-sm mb-1" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalRechazar{{ c.id }}">
+                                    <i class="fas fa-times"></i> Rechazar
+                                </button>
+                                
+                                <!-- Modal para rechazar -->
+                                <div class="modal fade" id="modalRechazar{{ c.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Rechazar Comprobante</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('citas.rechazar_comprobante', id=c.id) }}">
+                                                <div class="modal-body">
+                                                    <p><strong>Paciente:</strong> {{ c.paciente.nombre }}</p>
+                                                    <div class="mb-3">
+                                                        <label for="observaciones{{ c.id }}" class="form-label">Motivo del rechazo</label>
+                                                        <input type="text" 
+                                                               name="observaciones" 
+                                                               id="observaciones{{ c.id }}" 
+                                                               class="form-control" 
+                                                               placeholder="Ej: Imagen borrosa, monto incorrecto"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-danger">Rechazar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay comprobantes pendientes de revisión.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

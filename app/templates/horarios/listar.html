@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-clock"></i> Horarios de Doctores</h2>
+    
+    {% if current_user.rol == 'odontologo' %}
+    <a href="{{ url_for('main.nuevo_horario') }}" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Agregar horario
+    </a>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Día</th>
+                        <th>Hora inicio</th>
+                        <th>Hora fin</th>
+                        {% if current_user.rol == 'odontologo' %}
+                        <th>Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in horarios %}
+                    <tr>
+                        <td><strong>{{ h.doctor }}</strong></td>
+                        <td>{{ h.dia_semana }}</td>
+                        <td>{{ h.hora_inicio.strftime('%H:%M') }}</td>
+                        <td>{{ h.hora_fin.strftime('%H:%M') }}</td>
+                        {% if current_user.rol == 'odontologo' %}
+                        <td>
+                            <a href="{{ url_for('main.eliminar_horario', id=h.id) }}" 
+                               class="btn btn-sm btn-danger" 
+                               onclick="return confirm('¿Eliminar este horario?')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            {% if not horarios %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay horarios registrados aún.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

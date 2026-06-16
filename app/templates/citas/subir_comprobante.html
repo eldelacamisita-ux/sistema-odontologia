@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-receipt"></i> Subir Comprobante de Pago</h2>
+    
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">
+            <strong>Información de la Cita</strong>
+        </div>
+        <div class="card-body">
+            <p><strong>Paciente:</strong> {{ cita.paciente.nombre }}</p>
+            <p><strong>Fecha y hora:</strong> {{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+            <p><strong>Motivo:</strong> {{ cita.motivo or 'No especificado' }}</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="monto" class="form-label">Monto ($)</label>
+                    <select name="monto" id="monto" class="form-select" required>
+                        <option value="">-- Seleccionar monto --</option>
+                        <option value="5">5 $</option>
+                        <option value="10">10 $</option>
+                    </select>
+                    <div class="form-text">Selecciona el monto pagado</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Foto del comprobante</label>
+                    <input type="file" 
+                           name="foto" 
+                           id="foto" 
+                           class="form-control" 
+                           accept=".png,.jpg,.jpeg,.gif,.pdf" 
+                           required>
+                    <div class="form-text">Formatos permitidos: PNG, JPG, JPEG, GIF, PDF (máx. 5MB)</div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i> <strong>Importante:</strong> 
+                    Una vez subido el comprobante, un administrador lo revisará y aprobará.
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Subir comprobante
+                    </button>
+                    <a href="{{ url_for('citas.listar') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

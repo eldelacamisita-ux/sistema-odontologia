@@ -10,6 +10,8 @@ from sqlalchemy import func, extract
 @main_bp.route('/')
 @login_required
 def index():
+    from app.models import HorarioDoctor
+    
     ahora = datetime.utcnow()
     limite = ahora + timedelta(hours=48)
     citas_proximas = Cita.query.filter(
@@ -51,6 +53,9 @@ def index():
             # d[0] puede ser int, Decimal o string dependiendo de la BD
             dia_num = int(d[0])
             chart_data.append({'dia': dias_map.get(dia_num, str(dia_num)), 'total': d[1]})
+    
+    # Obtener horarios para mostrar en el dashboard
+    horarios = HorarioDoctor.query.filter_by(activo=True).order_by(HorarioDoctor.dia_semana).all()
 
     return render_template('index.html',
                            citas_proximas=citas_proximas,
@@ -58,7 +63,8 @@ def index():
                            solicitudes_publicas=solicitudes_publicas,
                            total_pacientes=total_pacientes,
                            total_citas_hoy=total_citas_hoy,
-                           chart_data=chart_data)
+                           chart_data=chart_data,
+                           horarios=horarios)
 
 @main_bp.route('/solicitudes-pendientes')
 @login_required
@@ -216,3 +222,41 @@ def ejecutar_agente(agente_id):
         flash(f'❌ No se pudo ejecutar el agente "{agente_id}"', 'danger')
     
     return redirect(url_for('main.panel_agentes'))
+
+
+@main_bp.route('/horarios')
+@login_required
+def ver_horarios():
+    from app.models import HorarioDoctor
+    horarios = HorarioDoctor.query.all()
+    return render_template('horarios/listar.html', horarios=horarios)
+
+@main_bp.route('/horarios/nuevo', methods=['GET', 'POST'])
+@login_required
+@rol_requerido('odontologo')
+def nuevo_horario():
+    from app.models import HorarioDoctor
+    if request.method == 'POST':
+        doctor = request.form['doctor']
+        dia = request.form['dia']
+        hora_inicio = datetime.strptime(request.form['hora_inicio'], '%H:%M').time()
+        hora_fin = datetime.strptime(request.form['hora_fin'], '%H:%M').time()
+        horario = HorarioDoctor(doctor=doctor, dia_semana=dia, hora_inicio=hora_inicio, hora_fin=hora_fin)
+        db.session.add(horario)
+        db.session.commit()
+        registrar_log(f'Agregó horario: {doctor} - {dia} {hora_inicio}-{hora_fin}', 'horariodoctor', horario.id)
+        flash('Horario agregado', 'success')
+        return redirect(url_for('main.ver_horarios'))
+    return render_template('horarios/formulario.html')
+
+@main_bp.route('/horarios/eliminar/<int:id>')
+@login_required
+@rol_requerido('odontologo')
+def eliminar_horario(id):
+    from app.models import HorarioDoctor
+    horario = HorarioDoctor.query.get_or_404(id)
+    registrar_log(f'Eliminó horario ID {id}', 'horariodoctor', id)
+    db.session.delete(horario)
+    db.session.commit()
+    flash('Horario eliminado', 'warning')
+    return redirect(url_for('main.ver_horarios'))

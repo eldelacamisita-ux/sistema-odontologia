@@ -81,9 +81,67 @@
 </div>
 
 <div class="row mt-2">
-    <div class="col text-center">
-        <a href="{{ url_for('citas.nueva') }}" class="btn btn-primary btn-lg">➕ Agendar cita</a>
-        <a href="{{ url_for('pacientes.nuevo') }}" class="btn btn-secondary btn-lg">📝 Nuevo paciente</a>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-clock"></i> Horarios de Atención
+            </div>
+            <div class="card-body">
+                {% set horarios_query = namespace() %}
+                {% set horarios_query.data = [] %}
+                {% if request %}
+                    {% from 'macros.html' import get_horarios %}
+                    {% set horarios_query.data = get_horarios() %}
+                {% endif %}
+                
+                <!-- Mostrar horarios agrupados por doctor -->
+                {% set ns = namespace(doctores={}) %}
+                {% for h in horarios|default([]) %}
+                    {% if h.doctor not in ns.doctores %}
+                        {% set _ = ns.doctores.update({h.doctor: []}) %}
+                    {% endif %}
+                    {% set _ = ns.doctores[h.doctor].append(h) %}
+                {% endfor %}
+                
+                {% if ns.doctores %}
+                    {% for doctor, horarios_doctor in ns.doctores.items() %}
+                    <div class="mb-3">
+                        <h6 class="text-primary"><i class="fas fa-user-md"></i> {{ doctor }}</h6>
+                        <ul class="list-unstyled ms-3">
+                            {% for h in horarios_doctor %}
+                            <li>
+                                <i class="fas fa-calendar-day"></i> <strong>{{ h.dia_semana }}:</strong> 
+                                {{ h.hora_inicio.strftime('%H:%M') }} - {{ h.hora_fin.strftime('%H:%M') }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted">No hay horarios registrados.</p>
+                {% endif %}
+                
+                <a href="{{ url_for('main.ver_horarios') }}" class="btn btn-sm btn-outline-info mt-2">
+                    Ver todos los horarios <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-info-circle"></i> Acciones Rápidas
+            </div>
+            <div class="card-body text-center">
+                <a href="{{ url_for('citas.nueva') }}" class="btn btn-primary btn-lg mb-2 d-block">
+                    <i class="fas fa-plus"></i> Agendar cita
+                </a>
+                <a href="{{ url_for('pacientes.nuevo') }}" class="btn btn-secondary btn-lg d-block">
+                    <i class="fas fa-user-plus"></i> Nuevo paciente
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

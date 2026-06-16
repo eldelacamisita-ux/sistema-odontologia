@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-clock"></i> Nuevo Horario</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="doctor" class="form-label">Doctor</label>
+                    <input type="text" 
+                           name="doctor" 
+                           id="doctor" 
+                           class="form-control" 
+                           placeholder="Ej: Dr. Nelson Rodriguez"
+                           required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="dia" class="form-label">Día</label>
+                    <select name="dia" id="dia" class="form-select" required>
+                        <option value="">-- Seleccionar día --</option>
+                        <option value="Lunes">Lunes</option>
+                        <option value="Martes">Martes</option>
+                        <option value="Miércoles">Miércoles</option>
+                        <option value="Jueves">Jueves</option>
+                        <option value="Viernes">Viernes</option>
+                        <option value="Sábado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="hora_inicio" class="form-label">Hora inicio</label>
+                            <input type="time" 
+                                   name="hora_inicio" 
+                                   id="hora_inicio" 
+                                   class="form-control" 
+                                   required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="hora_fin" class="form-label">Hora fin</label>
+                            <input type="time" 
+                                   name="hora_fin" 
+                                   id="hora_fin" 
+                                   class="form-control" 
+                                   required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a href="{{ url_for('main.ver_horarios') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

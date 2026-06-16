@@ -47,13 +47,28 @@ def create_app():
     # Crear tablas y usuario admin
     with app.app_context():
         db.create_all()
-        from app.models import Usuario
+        from app.models import Usuario, HorarioDoctor
+        from datetime import time
+        
+        # Crear usuario admin si no existe
         if not Usuario.query.filter_by(username='admin').first():
             admin = Usuario(username='admin', email='admin@clinica.com', rol='odontologo')
             admin.set_password('admin123')
             db.session.add(admin)
             db.session.commit()
             print("✅ Usuario admin creado: admin / admin123")
+        
+        # Seed de horarios si no existen
+        if not HorarioDoctor.query.first():
+            horarios = [
+                HorarioDoctor(doctor="Dr. Nelson Rodriguez", dia_semana="Lunes", hora_inicio=time(12, 0), hora_fin=time(15, 0)),
+                HorarioDoctor(doctor="Dr. Nelson Rodriguez", dia_semana="Miércoles", hora_inicio=time(12, 0), hora_fin=time(15, 0)),
+                HorarioDoctor(doctor="Dra. Werllith Rangel", dia_semana="Martes", hora_inicio=time(8, 0), hora_fin=time(11, 0)),
+                HorarioDoctor(doctor="Dra. Werllith Rangel", dia_semana="Jueves", hora_inicio=time(8, 0), hora_fin=time(11, 0)),
+            ]
+            db.session.add_all(horarios)
+            db.session.commit()
+            print("✅ Horarios iniciales creados")
 
     # Ruta de debug
     @app.route('/debug')
