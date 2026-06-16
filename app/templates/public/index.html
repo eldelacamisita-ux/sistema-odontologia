@@ -133,10 +133,17 @@
                 </p>
                 <p class="mb-3">
                     <i class="fas fa-clock text-primary"></i> 
-                    <strong>Horario:</strong><br>
+                    <strong>Horarios de Atención:</strong><br>
+                    {% if horarios %}
+                        {% for h in horarios %}
+                        <strong>{{ h.doctor }}</strong><br>
+                        {{ h.dia_semana }}: {{ h.hora_inicio.strftime('%I:%M %p') }} - {{ h.hora_fin.strftime('%I:%M %p') }}<br>
+                        {% endfor %}
+                    {% else %}
                     Lunes a Viernes<br>
                     8:00 AM - 12:00 PM<br>
                     1:00 PM - 6:00 PM<br>
+                    {% endif %}
                     <small class="text-danger">Previa cita</small>
                 </p>
             </div>

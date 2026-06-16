@@ -1,12 +1,13 @@
 from flask import render_template, request, flash, redirect, url_for, current_app
 from app import db
 from app.public import public_bp
-from app.models import CitaPublica
+from app.models import CitaPublica, HorarioDoctor
 from datetime import datetime
 
 @public_bp.route('/')
 def index():
-    return render_template('public/index.html')
+    horarios = HorarioDoctor.query.filter_by(activo=True).all()
+    return render_template('public/index.html', horarios=horarios)
 
 @public_bp.route('/test')
 def test():

@@ -56,15 +56,31 @@
                                         {% else %}
                                             <span class="badge bg-secondary">{{ cita.estado }}</span>
                                         {% endif %}
+                                        
+                                        {% if cita.comprobante %}
+                                            <br>
+                                            <span class="badge {% if cita.comprobante.estado == 'aprobado' %}bg-success{% elif cita.comprobante.estado == 'rechazado' %}bg-danger{% else %}bg-warning{% endif %} mt-1">
+                                                Pago: {{ cita.comprobante.estado }}
+                                            </span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now() %}
                                             <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
-                                               class="btn btn-sm btn-outline-danger"
+                                               class="btn btn-sm btn-outline-danger mb-1"
                                                onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
                                                 <i class="fas fa-times"></i> Cancelar
                                             </a>
-                                        {% else %}
+                                        {% endif %}
+                                        
+                                        {% if cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado') %}
+                                            <a href="{{ url_for('citas.subir_comprobante', cita_id=cita.id) }}" 
+                                               class="btn btn-sm btn-success mb-1">
+                                                <i class="fas fa-upload"></i> Subir Comprobante
+                                            </a>
+                                        {% endif %}
+                                        
+                                        {% if not (cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now()) and not (cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado')) %}
                                             <span class="text-muted">-</span>
                                         {% endif %}
                                     </td>
