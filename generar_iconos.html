@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Íconos PWA - OdontoSeguro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #0d6efd; text-align: center; }
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 10px;
+        }
+        button {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0b5ed7; }
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦷 Generador de Íconos PWA</h1>
+        
+        <div class="instructions">
+            <strong>Instrucciones:</strong>
+            <ol>
+                <li>Personaliza el texto y colores</li>
+                <li>Haz clic en "Generar Íconos"</li>
+                <li>Descarga ambos íconos (192x192 y 512x512)</li>
+                <li>Guárdalos en: <code>app/static/icons/</code></li>
+            </ol>
+        </div>
+
+        <div>
+            <label><strong>Texto del ícono:</strong></label>
+            <input type="text" id="iconText" value="OS" maxlength="3" placeholder="2-3 letras">
+        </div>
+
+        <div class="color-picker">
+            <label><strong>Color de fondo:</strong></label>
+            <input type="color" id="bgColor" value="#0d6efd">
+            <label><strong>Color del texto:</strong></label>
+            <input type="color" id="textColor" value="#ffffff">
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="generarIconos()">🎨 Generar Íconos</button>
+        </div>
+
+        <div class="canvas-container">
+            <div>
+                <h3>192x192 píxeles</h3>
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <br>
+                <button onclick="descargar('canvas192', 'icon-192.png')">⬇️ Descargar 192x192</button>
+            </div>
+            <div>
+                <h3>512x512 píxeles</h3>
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <br>
+                <button onclick="descargar('canvas512', 'icon-512.png')">⬇️ Descargar 512x512</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generarIconos() {
+            const text = document.getElementById('iconText').value || 'OS';
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+
+            dibujarIcono('canvas192', 192, text, bgColor, textColor);
+            dibujarIcono('canvas512', 512, text, bgColor, textColor);
+        }
+
+        function dibujarIcono(canvasId, size, text, bgColor, textColor) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Fondo
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, size, size);
+
+            // Texto
+            ctx.fillStyle = textColor;
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, size / 2, size / 2);
+
+            // Borde redondeado opcional
+            ctx.strokeStyle = textColor;
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeRect(size * 0.05, size * 0.05, size * 0.9, size * 0.9);
+        }
+
+        function descargar(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Generar íconos por defecto al cargar
+        window.onload = function() {
+            generarIconos();
+        };
+    </script>
+</body>
+</html>
