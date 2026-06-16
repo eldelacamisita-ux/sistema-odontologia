@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body {% if current_user.is_authenticated %}class="authenticated"{% endif %}>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% if current_user.is_authenticated %}{{ url_for('main.index') }}{% else %}{{ url_for('public.index') }}{% endif %}"><i class="fas fa-tooth"></i> OdontoSeguro</a>
@@ -112,6 +112,25 @@
         });
     </script>
     
-    {% block extra_js %}{% endblock %}
+{% block extra_js %}{% endblock %}
+
+<!-- Notificación automática de citas próximas al cargar dashboard -->
+{% if citas_proximas and citas_proximas|length > 0 %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Esperar 5 segundos para que la página cargue completamente
+        setTimeout(function() {
+            if (typeof mostrarNotificacion === 'function') {
+                const totalCitas = {{ citas_proximas|length }};
+                const mensaje = totalCitas === 1 
+                    ? 'Tienes 1 cita próxima en las próximas 48 horas.'
+                    : `Tienes ${totalCitas} citas próximas en las próximas 48 horas.`;
+                
+                mostrarNotificacion('📋 Recordatorio', mensaje);
+            }
+        }, 5000);
+    });
+</script>
+{% endif %}
 </body>
 </html>

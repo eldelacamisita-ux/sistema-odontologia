@@ -260,3 +260,35 @@ def eliminar_horario(id):
     db.session.commit()
     flash('Horario eliminado', 'warning')
     return redirect(url_for('main.ver_horarios'))
+
+
+# ==========================================
+# 🔔 API PARA NOTIFICACIONES
+# ==========================================
+
+@main_bp.route('/api/citas-proximas')
+@login_required
+def api_citas_proximas():
+    """API para obtener citas próximas en las próximas 24 horas"""
+    from flask import jsonify
+    
+    ahora = datetime.utcnow()
+    limite = ahora + timedelta(hours=24)  # Próximas 24 horas
+    
+    # Buscar citas programadas próximas
+    citas = Cita.query.filter(
+        Cita.fecha_hora >= ahora,
+        Cita.fecha_hora <= limite,
+        Cita.estado == 'programada'
+    ).order_by(Cita.fecha_hora).limit(5).all()  # Máximo 5 citas
+    
+    return jsonify({
+        'citas': [{
+            'id': c.id,
+            'paciente': c.paciente.nombre if c.paciente else 'Desconocido',
+            'fecha': c.fecha_hora.strftime('%d/%m/%Y'),
+            'hora': c.fecha_hora.strftime('%H:%M'),
+            'motivo': c.motivo
+        } for c in citas],
+        'total': len(citas)
+    })
