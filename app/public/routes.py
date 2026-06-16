@@ -1,8 +1,7 @@
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for, current_app
 from app import db
 from app.public import public_bp
 from app.models import CitaPublica
-from app.email_utils import enviar_notificacion_solicitud_publica
 from datetime import datetime
 
 @public_bp.route('/')
@@ -52,11 +51,8 @@ def solicitar_cita():
         db.session.add(nueva)
         db.session.commit()
         
-        # Enviar notificación por email al admin
-        try:
-            enviar_notificacion_solicitud_publica(nueva)
-        except Exception as e:
-            print(f"Error al enviar email de notificación: {e}")
+        # Log de notificación (sin envío de email)
+        current_app.logger.info(f"Notificación: Nueva solicitud pública de {nueva.nombre} ({nueva.telefono})")
             # No fallar la solicitud si el email falla
         
         flash('✅ Solicitud de cita enviada exitosamente. Pronto nos comunicaremos con usted.', 'success')

@@ -1,9 +1,8 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.portal import portal_bp
 from app.models import Usuario, Paciente, Cita
-from app.email_utils import enviar_notificacion_solicitud_paciente
 from datetime import datetime, date, timedelta
 
 @portal_bp.before_request
@@ -107,11 +106,8 @@ def nueva_cita():
             db.session.add(nueva)
             db.session.commit()
             
-            # Enviar notificación por email al admin
-            try:
-                enviar_notificacion_solicitud_paciente(nueva)
-            except Exception as e:
-                print(f"Error al enviar email de notificación: {e}")
+            # Log de notificación (sin envío de email)
+            current_app.logger.info(f"Notificación: Nueva solicitud de cita de {paciente.nombre} para {fecha_hora}")
                 # No fallar la solicitud si el email falla
             
             flash('✅ Solicitud de cita enviada. El consultorio confirmará la disponibilidad en 24 horas.', 'success')

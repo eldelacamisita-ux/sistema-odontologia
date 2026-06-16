@@ -1,11 +1,10 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 from app import db
 from app.main import main_bp
 from app.models import Cita, Paciente, LogAuditoria
 from app.utils import rol_requerido, registrar_log
-from app.email_utils import enviar_confirmacion_cita, enviar_rechazo_cita
 from sqlalchemy import func, extract
 
 @main_bp.route('/')
@@ -145,11 +144,8 @@ def aprobar_cita(cita_id):
     
     registrar_log(f'Aprobó solicitud de cita ID {cita_id} para {cita.paciente.nombre}', 'cita', cita_id)
     
-    # Enviar email de confirmación al paciente
-    try:
-        enviar_confirmacion_cita(cita)
-    except Exception as e:
-        print(f"Error al enviar email de confirmación: {e}")
+    # Log de notificación (sin envío de email)
+    current_app.logger.info(f"Notificación: Cita confirmada para {cita.paciente.nombre} el {cita.fecha_hora}")
         # No fallar la aprobación si el email falla
     
     flash(f'✅ Cita aprobada para {cita.paciente.nombre} el {cita.fecha_hora.strftime("%d/%m/%Y a las %H:%M")}', 'success')
@@ -175,11 +171,8 @@ def rechazar_cita(cita_id):
     
     registrar_log(f'Rechazó solicitud de cita ID {cita_id}: {motivo_rechazo}', 'cita', cita_id)
     
-    # Enviar email de rechazo al paciente
-    try:
-        enviar_rechazo_cita(cita, motivo_rechazo)
-    except Exception as e:
-        print(f"Error al enviar email de rechazo: {e}")
+    # Log de notificación (sin envío de email)
+    current_app.logger.info(f"Notificación: Cita rechazada para {cita.paciente.nombre}. Motivo: {motivo_rechazo}")
         # No fallar el rechazo si el email falla
     
     flash(f'❌ Solicitud rechazada para {cita.paciente.nombre}', 'warning')
