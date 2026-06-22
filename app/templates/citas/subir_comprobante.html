@@ -90,31 +90,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const montoInput = document.getElementById('monto');
     const btnSubmit = document.getElementById('btnSubmit');
     
+    // 📦 Tabla de precios ESTÁTICA (sin necesidad de base de datos)
+    const PRECIOS = {
+        'Consulta': {'Estudiante': 5, 'Trabajador': 5, 'Otro': 10},
+        'Tartrectomía, Pulido, Flúor': {'Estudiante': 5, 'Trabajador': 10, 'Otro': 20},
+        'Resinas': {'Estudiante': 10, 'Trabajador': 15, 'Otro': 20},
+        'Exodoncia Simple': {'Estudiante': 10, 'Trabajador': 10, 'Otro': 20},
+        'Emergencia': {'Estudiante': 10, 'Trabajador': 10, 'Otro': 20}
+    };
+    
     function calcularPrecio() {
         const procedimiento = procSelect.value;
         const tipo = tipoSelect.value;
         
-        if (procedimiento && tipo) {
-            fetch('/dashboard/api/precio', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    procedimiento: procedimiento, 
-                    tipo_paciente: tipo
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                montoInput.value = data.precio;
-                btnSubmit.disabled = false;
-            })
-            .catch(err => {
-                console.error('Error al calcular precio:', err);
-                montoInput.value = '';
-                btnSubmit.disabled = true;
-            });
+        if (procedimiento && tipo && PRECIOS[procedimiento] && PRECIOS[procedimiento][tipo] !== undefined) {
+            montoInput.value = PRECIOS[procedimiento][tipo];
+            btnSubmit.disabled = false;
         } else {
             montoInput.value = '';
             btnSubmit.disabled = true;

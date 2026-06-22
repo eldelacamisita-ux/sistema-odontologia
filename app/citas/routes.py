@@ -157,20 +157,8 @@ def listar_pagos():
         flash('No tienes permiso para ver esta sección', 'danger')
         return redirect(url_for('main.index'))
     
-    from app.models import Precio
+    # Ya no calculamos precio esperado aquí, se hace en el frontend con JavaScript
     comprobantes = ComprobantePago.query.order_by(ComprobantePago.fecha_subida.desc()).all()
-    
-    # Calcular precio esperado para cada comprobante
-    for c in comprobantes:
-        if c.procedimiento and c.tipo_paciente:
-            precio = Precio.query.filter_by(
-                procedimiento=c.procedimiento,
-                tipo_paciente=c.tipo_paciente
-            ).first()
-            c.precio_esperado = precio.precio if precio else None
-        else:
-            c.precio_esperado = None
-    
     return render_template('citas/pagos.html', comprobantes=comprobantes)
 
 @citas_bp.route('/pagos/confirmar/<int:id>', methods=['POST'])

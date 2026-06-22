@@ -34,7 +34,9 @@
         <tbody>
             {% if comprobantes %}
                 {% for c in comprobantes %}
-                <tr {% if c.precio_esperado and c.monto != c.precio_esperado %}class="table-warning"{% endif %}>
+                <tr data-procedimiento="{{ c.procedimiento or '' }}" 
+                    data-tipo="{{ c.tipo_paciente or '' }}"
+                    data-monto="{{ c.monto }}">
                     <td>
                         <strong>{{ c.paciente.nombre }}</strong><br>
                         <small class="text-muted">{{ c.paciente.telefono or 'Sin teléfono' }}</small>
@@ -44,15 +46,8 @@
                     <td>
                         <strong class="text-primary">${{ "%.2f"|format(c.monto) }}</strong>
                     </td>
-                    <td>
-                        {% if c.precio_esperado %}
-                            <strong class="text-success">${{ "%.2f"|format(c.precio_esperado) }}</strong>
-                            {% if c.monto != c.precio_esperado %}
-                            <br><small class="text-danger">⚠️ No coincide</small>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
+                    <td class="precio-esperado">
+                        <span class="text-muted">Calculando...</span>
                     </td>
                     <td>{{ c.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</td>
                     <td class="text-center">
@@ -122,5 +117,40 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+// 📦 Tabla de precios ESTÁTICA para calcular precio esperado
+const PRECIOS = {
+    'Consulta': {'Estudiante': 5, 'Trabajador': 5, 'Otro': 10},
+    'Tartrectomía, Pulido, Flúor': {'Estudiante': 5, 'Trabajador': 10, 'Otro': 20},
+    'Resinas': {'Estudiante': 10, 'Trabajador': 15, 'Otro': 20},
+    'Exodoncia Simple': {'Estudiante': 10, 'Trabajador': 10, 'Otro': 20},
+    'Emergencia': {'Estudiante': 10, 'Trabajador': 10, 'Otro': 20}
+};
+
+// Calcular y mostrar precios esperados al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const filas = document.querySelectorAll('tr[data-procedimiento]');
+    filas.forEach(fila => {
+        const procedimiento = fila.getAttribute('data-procedimiento');
+        const tipo = fila.getAttribute('data-tipo');
+        const precioCell = fila.querySelector('.precio-esperado');
+        
+        if (procedimiento && tipo && PRECIOS[procedimiento] && PRECIOS[procedimiento][tipo] !== undefined) {
+            const precioEsperado = PRECIOS[procedimiento][tipo];
+            precioCell.innerHTML = `<strong class="text-success">$${precioEsperado.toFixed(2)}</strong>`;
+            
+            // Verificar si coincide con el monto pagado
+            const montoPagado = parseFloat(fila.getAttribute('data-monto'));
+            if (montoPagado !== precioEsperado) {
+                precioCell.innerHTML += '<br><small class="text-danger">⚠️ No coincide</small>';
+                fila.classList.add('table-warning');
+            }
+        } else {
+            precioCell.innerHTML = '<span class="text-muted">N/A</span>';
+        }
+    });
+});
+</script>
 
 {% endblock %}
