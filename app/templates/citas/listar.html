@@ -1,50 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between">
-    <h2><i class="fas fa-calendar-alt"></i> Agenda de citas</h2>
-    <a href="{{ url_for('citas.nueva') }}" class="btn btn-success">+ Nueva cita</a>
-</div>
-<div class="table-responsive mt-3">
-    <table class="table table-bordered">
-        <thead class="table-dark">
-            <tr><th>Paciente</th><th>Fecha y hora</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr>
-        </thead>
-        <tbody>
-            {% for c in citas %}
-            <tr>
-                <td>{{ c.paciente.nombre }}</td>
-                <td>{{ c.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>{{ c.motivo or '-' }}</td>
-                <td>
-                    <span class="badge {% if c.estado == 'programada' %}bg-primary{% elif c.estado == 'realizada' %}bg-success{% else %}bg-danger{% endif %}">
-                        {{ c.estado }}
-                    </span>
-                    
-                    <!-- Indicador de comprobante -->
-                    {% if c.comprobante %}
-                        {% if c.comprobante.estado == 'aprobado' %}
-                        <span class="badge bg-success ms-1"><i class="fas fa-check-circle"></i> Pago aprobado</span>
-                        {% elif c.comprobante.estado == 'pendiente' %}
-                        <span class="badge bg-warning ms-1"><i class="fas fa-clock"></i> Pago pendiente</span>
-                        {% elif c.comprobante.estado == 'rechazado' %}
-                        <span class="badge bg-danger ms-1"><i class="fas fa-times-circle"></i> Pago rechazado</span>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-calendar-alt text-success"></i> Agenda de citas</h2>
+        <a href="{{ url_for('citas.nueva') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle"></i> Nueva cita
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Paciente</th>
+                    <th>Fecha/Hora</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in citas %}
+                <tr>
+                    <td><strong>{{ c.paciente.nombre }}</strong></td>
+                    <td>{{ c.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ c.motivo or '-' }}</td>
+                    <td>
+                        <span class="badge
+                            {% if c.estado == 'programada' %}bg-primary
+                            {% elif c.estado == 'realizada' %}bg-success
+                            {% elif c.estado == 'cancelada' %}bg-danger
+                            {% endif %}">
+                            {{ c.estado }}
+                        </span>
+                        
+                        <!-- Indicador de comprobante -->
+                        {% if c.comprobante %}
+                            {% if c.comprobante.estado == 'confirmado' %}
+                            <span class="badge bg-success ms-1"><i class="fas fa-check-circle"></i> Pagado</span>
+                            {% elif c.comprobante.estado == 'aprobado' %}
+                            <span class="badge bg-info ms-1"><i class="fas fa-check"></i> Aprobado</span>
+                            {% elif c.comprobante.estado == 'pendiente' %}
+                            <span class="badge bg-warning text-dark ms-1"><i class="fas fa-clock"></i> Pendiente</span>
+                            {% elif c.comprobante.estado == 'rechazado' %}
+                            <span class="badge bg-danger ms-1"><i class="fas fa-times-circle"></i> Rechazado</span>
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{{ url_for('citas.editar', id=c.id) }}" class="btn btn-sm btn-warning mb-1">Editar</a>
-                    <a href="{{ url_for('citas.eliminar', id=c.id) }}" class="btn btn-sm btn-danger mb-1" onclick="return confirm('¿Cancelar cita?')">Cancelar</a>
-                    
-                    <!-- Botón subir comprobante solo si la cita está realizada y no tiene comprobante aprobado -->
-                    {% if c.estado == 'realizada' and (not c.comprobante or c.comprobante.estado == 'rechazado') %}
-                    <a href="{{ url_for('citas.subir_comprobante', cita_id=c.id) }}" class="btn btn-sm btn-success mb-1">
-                        <i class="fas fa-upload"></i> Subir comprobante
-                    </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ url_for('citas.editar', id=c.id) }}" class="btn btn-outline-warning" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('citas.eliminar', id=c.id) }}" class="btn btn-outline-danger" title="Cancelar" onclick="return confirm('¿Cancelar cita?')">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% if c.estado == 'realizada' and (not c.comprobante or c.comprobante.estado == 'rechazado') %}
+                            <a href="{{ url_for('citas.subir_comprobante', cita_id=c.id) }}" class="btn btn-outline-primary" title="Subir comprobante">
+                                <i class="fas fa-upload"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No hay citas agendadas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
