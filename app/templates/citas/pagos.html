@@ -66,6 +66,7 @@
                     <td>
                         {% if c.estado != 'confirmado' %}
                         <form method="POST" action="{{ url_for('citas.confirmar_pago', id=c.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Confirmar este pago?')">
                                 ✅ Confirmar
                             </button>
