@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 from app import db
@@ -292,3 +292,17 @@ def api_citas_proximas():
         } for c in citas],
         'total': len(citas)
     })
+
+@main_bp.route('/api/precio', methods=['POST'])
+@login_required
+def api_precio():
+    """API para obtener precio según procedimiento y tipo de paciente"""
+    from app.models import Precio
+    data = request.get_json()
+    procedimiento = data.get('procedimiento')
+    tipo_paciente = data.get('tipo_paciente')
+    precio = Precio.query.filter_by(
+        procedimiento=procedimiento,
+        tipo_paciente=tipo_paciente
+    ).first()
+    return jsonify({'precio': precio.precio if precio else 0})

@@ -142,8 +142,19 @@ class ComprobantePago(db.Model):
     monto = db.Column(db.Float, nullable=False)  # 5 o 10 USD
     foto_path = db.Column(db.String(200), nullable=False)  # Ruta del archivo subido
     fecha_subida = db.Column(db.DateTime, default=datetime.utcnow)
-    estado = db.Column(db.String(20), default='pendiente')  # pendiente, aprobado, rechazado
+    estado = db.Column(db.String(20), default='pendiente')  # pendiente, aprobado, rechazado, confirmado
     observaciones = db.Column(db.String(200))  # Comentario del admin
+    procedimiento = db.Column(db.String(50))  # Nuevo: procedimiento realizado
+    tipo_paciente = db.Column(db.String(20))  # Nuevo: tipo de paciente
     
     cita = db.relationship('Cita', backref='comprobante', uselist=False)
     paciente = db.relationship('Paciente', backref='comprobantes')
+
+class Precio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    procedimiento = db.Column(db.String(50), nullable=False)
+    tipo_paciente = db.Column(db.String(20), nullable=False)
+    precio = db.Column(db.Float, nullable=False)
+    
+    def __repr__(self):
+        return f"{self.procedimiento} - {self.tipo_paciente}: ${self.precio}"

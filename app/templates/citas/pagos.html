@@ -21,7 +21,10 @@
         <thead class="table-dark">
             <tr>
                 <th>Paciente</th>
-                <th>Monto ($)</th>
+                <th>Procedimiento</th>
+                <th>Tipo paciente</th>
+                <th>Monto pagado ($)</th>
+                <th>Precio esperado ($)</th>
                 <th>Fecha subida</th>
                 <th>Comprobante</th>
                 <th>Estado</th>
@@ -31,13 +34,25 @@
         <tbody>
             {% if comprobantes %}
                 {% for c in comprobantes %}
-                <tr>
+                <tr {% if c.precio_esperado and c.monto != c.precio_esperado %}class="table-warning"{% endif %}>
                     <td>
                         <strong>{{ c.paciente.nombre }}</strong><br>
                         <small class="text-muted">{{ c.paciente.telefono or 'Sin teléfono' }}</small>
                     </td>
+                    <td>{{ c.procedimiento or 'N/A' }}</td>
+                    <td>{{ c.tipo_paciente or 'N/A' }}</td>
                     <td>
-                        <strong class="text-success">${{ "%.2f"|format(c.monto) }}</strong>
+                        <strong class="text-primary">${{ "%.2f"|format(c.monto) }}</strong>
+                    </td>
+                    <td>
+                        {% if c.precio_esperado %}
+                            <strong class="text-success">${{ "%.2f"|format(c.precio_esperado) }}</strong>
+                            {% if c.monto != c.precio_esperado %}
+                            <br><small class="text-danger">⚠️ No coincide</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
                     </td>
                     <td>{{ c.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</td>
                     <td class="text-center">
@@ -79,7 +94,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted">
+                    <td colspan="9" class="text-center text-muted">
                         <p class="my-4">No hay comprobantes de pago registrados aún.</p>
                     </td>
                 </tr>

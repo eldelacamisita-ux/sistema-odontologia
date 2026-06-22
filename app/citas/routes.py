@@ -101,18 +101,20 @@ def subir_comprobante(cita_id):
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
         
-        # Guardar en base de datos
+        # Guardar en base de datos con procedimiento y tipo_paciente
         comprobante = ComprobantePago(
             cita_id=cita_id,
             paciente_id=cita.paciente_id,
-            monto=float(request.form['monto']),
+            monto=float(request.form.get('monto', 0)),
             foto_path=filepath,
-            estado='pendiente'
+            estado='pendiente',
+            procedimiento=request.form.get('procedimiento'),
+            tipo_paciente=request.form.get('tipo_paciente')
         )
         db.session.add(comprobante)
         db.session.commit()
         registrar_log(f'Subió comprobante de pago para cita ID {cita_id}', 'comprobantepago', comprobante.id)
-        flash('Comprobante subido correctamente. Espera la aprobación.', 'success')
+        flash('✅ Comprobante subido correctamente. Espera la aprobación.', 'success')
         return redirect(url_for('citas.listar'))
     
     return render_template('citas/subir_comprobante.html', cita=cita)
@@ -155,7 +157,20 @@ def listar_pagos():
         flash('No tienes permiso para ver esta sección', 'danger')
         return redirect(url_for('main.index'))
     
+    from app.models import Precio
     comprobantes = ComprobantePago.query.order_by(ComprobantePago.fecha_subida.desc()).all()
+    
+    # Calcular precio esperado para cada comprobante
+    for c in comprobantes:
+        if c.procedimiento and c.tipo_paciente:
+            precio = Precio.query.filter_by(
+                procedimiento=c.procedimiento,
+                tipo_paciente=c.tipo_paciente
+            ).first()
+            c.precio_esperado = precio.precio if precio else None
+        else:
+            c.precio_esperado = None
+    
     return render_template('citas/pagos.html', comprobantes=comprobantes)
 
 @citas_bp.route('/pagos/confirmar/<int:id>', methods=['POST'])

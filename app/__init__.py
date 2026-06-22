@@ -47,7 +47,7 @@ def create_app():
     # Crear tablas y usuario admin
     with app.app_context():
         db.create_all()
-        from app.models import Usuario, HorarioDoctor
+        from app.models import Usuario, HorarioDoctor, Precio
         from datetime import time
         
         # Crear usuario admin si no existe
@@ -69,6 +69,31 @@ def create_app():
             db.session.add_all(horarios)
             db.session.commit()
             print("✅ Horarios iniciales creados")
+        
+        # Precargar precios si no existen
+        if Precio.query.count() == 0:
+            precios_iniciales = [
+                {'procedimiento': 'Consulta', 'tipo_paciente': 'Estudiante', 'precio': 5},
+                {'procedimiento': 'Consulta', 'tipo_paciente': 'Trabajador', 'precio': 5},
+                {'procedimiento': 'Consulta', 'tipo_paciente': 'Otro', 'precio': 10},
+                {'procedimiento': 'Tartrectomía, Pulido, Flúor', 'tipo_paciente': 'Estudiante', 'precio': 5},
+                {'procedimiento': 'Tartrectomía, Pulido, Flúor', 'tipo_paciente': 'Trabajador', 'precio': 10},
+                {'procedimiento': 'Tartrectomía, Pulido, Flúor', 'tipo_paciente': 'Otro', 'precio': 20},
+                {'procedimiento': 'Resinas', 'tipo_paciente': 'Estudiante', 'precio': 10},
+                {'procedimiento': 'Resinas', 'tipo_paciente': 'Trabajador', 'precio': 15},
+                {'procedimiento': 'Resinas', 'tipo_paciente': 'Otro', 'precio': 20},
+                {'procedimiento': 'Exodoncia Simple', 'tipo_paciente': 'Estudiante', 'precio': 10},
+                {'procedimiento': 'Exodoncia Simple', 'tipo_paciente': 'Trabajador', 'precio': 10},
+                {'procedimiento': 'Exodoncia Simple', 'tipo_paciente': 'Otro', 'precio': 20},
+                {'procedimiento': 'Emergencia', 'tipo_paciente': 'Estudiante', 'precio': 10},
+                {'procedimiento': 'Emergencia', 'tipo_paciente': 'Trabajador', 'precio': 10},
+                {'procedimiento': 'Emergencia', 'tipo_paciente': 'Otro', 'precio': 20},
+            ]
+            for data in precios_iniciales:
+                p = Precio(**data)
+                db.session.add(p)
+            db.session.commit()
+            print("✅ Precios precargados")
 
     # Ruta de debug
     @app.route('/debug')

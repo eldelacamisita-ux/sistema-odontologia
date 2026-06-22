@@ -20,13 +20,38 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 
                 <div class="mb-3">
-                    <label for="monto" class="form-label">Monto ($)</label>
-                    <select name="monto" id="monto" class="form-select" required>
-                        <option value="">-- Seleccionar monto --</option>
-                        <option value="5">5 $</option>
-                        <option value="10">10 $</option>
+                    <label for="procedimiento" class="form-label">Procedimiento realizado</label>
+                    <select name="procedimiento" id="procedimiento" class="form-select" required>
+                        <option value="">-- Seleccione --</option>
+                        <option value="Consulta">Consulta</option>
+                        <option value="Tartrectomía, Pulido, Flúor">Tartrectomía, Pulido, Flúor</option>
+                        <option value="Resinas">Resinas</option>
+                        <option value="Exodoncia Simple">Exodoncia Simple</option>
+                        <option value="Emergencia">Emergencia</option>
                     </select>
-                    <div class="form-text">Selecciona el monto pagado</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="tipo_paciente" class="form-label">Tipo de paciente</label>
+                    <select name="tipo_paciente" id="tipo_paciente" class="form-select" required>
+                        <option value="">-- Seleccione --</option>
+                        <option value="Estudiante">Estudiante</option>
+                        <option value="Trabajador">Trabajador</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="monto" class="form-label">Monto a pagar ($)</label>
+                    <input type="number" 
+                           step="0.01" 
+                           name="monto" 
+                           id="monto" 
+                           class="form-control form-control-lg" 
+                           readonly 
+                           required
+                           style="background-color: #e9ecef; font-size: 1.5rem; font-weight: bold; color: #28a745;">
+                    <div class="form-text">El monto se calcula automáticamente según el procedimiento y tipo de paciente.</div>
                 </div>
                 
                 <div class="mb-3">
@@ -46,7 +71,7 @@
                 </div>
                 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit" disabled>
                         <i class="fas fa-upload"></i> Subir comprobante
                     </button>
                     <a href="{{ url_for('citas.listar') }}" class="btn btn-secondary">
@@ -57,4 +82,47 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const procSelect = document.getElementById('procedimiento');
+    const tipoSelect = document.getElementById('tipo_paciente');
+    const montoInput = document.getElementById('monto');
+    const btnSubmit = document.getElementById('btnSubmit');
+    
+    function calcularPrecio() {
+        const procedimiento = procSelect.value;
+        const tipo = tipoSelect.value;
+        
+        if (procedimiento && tipo) {
+            fetch('/dashboard/api/precio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    procedimiento: procedimiento, 
+                    tipo_paciente: tipo
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                montoInput.value = data.precio;
+                btnSubmit.disabled = false;
+            })
+            .catch(err => {
+                console.error('Error al calcular precio:', err);
+                montoInput.value = '';
+                btnSubmit.disabled = true;
+            });
+        } else {
+            montoInput.value = '';
+            btnSubmit.disabled = true;
+        }
+    }
+    
+    procSelect.addEventListener('change', calcularPrecio);
+    tipoSelect.addEventListener('change', calcularPrecio);
+});
+</script>
 {% endblock %}
