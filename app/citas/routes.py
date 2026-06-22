@@ -157,8 +157,13 @@ def listar_pagos():
         flash('No tienes permiso para ver esta sección', 'danger')
         return redirect(url_for('main.index'))
     
-    # Ya no calculamos precio esperado aquí, se hace en el frontend con JavaScript
-    comprobantes = ComprobantePago.query.order_by(ComprobantePago.fecha_subida.desc()).all()
+    # Filtro por estado
+    estado_filtro = request.args.get('estado', '')
+    query = ComprobantePago.query
+    if estado_filtro:
+        query = query.filter_by(estado=estado_filtro)
+    
+    comprobantes = query.order_by(ComprobantePago.fecha_subida.desc()).all()
     return render_template('citas/pagos.html', comprobantes=comprobantes)
 
 @citas_bp.route('/pagos/confirmar/<int:id>', methods=['POST'])
@@ -174,4 +179,21 @@ def confirmar_pago(id):
     db.session.commit()
     registrar_log(f'Confirmó pago ID {id}', 'comprobantepago', id)
     flash('✅ Pago confirmado correctamente', 'success')
+    return redirect(url_for('citas.listar_pagos'))
+
+@citas_bp.route('/pagos/rechazar/<int:id>', methods=['POST'])
+@login_required
+def rechazar_pago(id):
+    """Rechazar un pago con motivo opcional"""
+    if current_user.rol != 'odontologo':
+        flash('No tienes permiso', 'danger')
+        return redirect(url_for('main.index'))
+    
+    comprobante = ComprobantePago.query.get_or_404(id)
+    comprobante.estado = 'rechazado'
+    motivo = request.form.get('motivo', '')
+    comprobante.observaciones = motivo
+    db.session.commit()
+    registrar_log(f'Rechazó pago ID {id}. Motivo: {motivo or "No especificado"}', 'comprobantepago', id)
+    flash(f'❌ Pago rechazado. Motivo: {motivo or "No especificado"}', 'warning')
     return redirect(url_for('citas.listar_pagos'))
