@@ -146,3 +146,29 @@ def rechazar_comprobante(id):
     registrar_log(f'Rechazó comprobante ID {id}: {comprobante.observaciones}', 'comprobantepago', id)
     flash('Comprobante rechazado', 'warning')
     return redirect(url_for('citas.comprobantes_pendientes'))
+
+@citas_bp.route('/pagos')
+@login_required
+def listar_pagos():
+    """Panel de pagos - Solo admin/odontólogo puede ver"""
+    if current_user.rol != 'odontologo':
+        flash('No tienes permiso para ver esta sección', 'danger')
+        return redirect(url_for('main.index'))
+    
+    comprobantes = ComprobantePago.query.order_by(ComprobantePago.fecha_subida.desc()).all()
+    return render_template('citas/pagos.html', comprobantes=comprobantes)
+
+@citas_bp.route('/pagos/confirmar/<int:id>', methods=['POST'])
+@login_required
+def confirmar_pago(id):
+    """Confirmar pago definitivamente"""
+    if current_user.rol != 'odontologo':
+        flash('No tienes permiso', 'danger')
+        return redirect(url_for('main.index'))
+    
+    comprobante = ComprobantePago.query.get_or_404(id)
+    comprobante.estado = 'confirmado'
+    db.session.commit()
+    registrar_log(f'Confirmó pago ID {id}', 'comprobantepago', id)
+    flash('✅ Pago confirmado correctamente', 'success')
+    return redirect(url_for('citas.listar_pagos'))

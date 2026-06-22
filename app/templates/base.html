@@ -40,7 +40,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.listar') }}">Citas</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.ver_horarios') }}"><i class="fas fa-clock"></i> Horarios</a></li>
                     {% if current_user.rol == 'odontologo' %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.comprobantes_pendientes') }}"><i class="fas fa-file-invoice-dollar"></i> Pagos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.listar_pagos') }}"><i class="fas fa-credit-card"></i> Pagos</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.ver_logs') }}">Auditoría</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.panel_agentes') }}"><i class="fas fa-robot"></i> Agentes</a></li>
                     {% endif %}

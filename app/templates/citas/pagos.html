@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>💳 Pagos registrados</h2>
+    <a href="{{ url_for('citas.listar') }}" class="btn btn-secondary">← Volver a citas</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Paciente</th>
+                <th>Monto ($)</th>
+                <th>Fecha subida</th>
+                <th>Comprobante</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if comprobantes %}
+                {% for c in comprobantes %}
+                <tr>
+                    <td>
+                        <strong>{{ c.paciente.nombre }}</strong><br>
+                        <small class="text-muted">{{ c.paciente.telefono or 'Sin teléfono' }}</small>
+                    </td>
+                    <td>
+                        <strong class="text-success">${{ "%.2f"|format(c.monto) }}</strong>
+                    </td>
+                    <td>{{ c.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td class="text-center">
+                        <a href="{{ url_for('static', filename=c.foto_path.replace('app/static/', '').replace('static/', '')) }}" 
+                           target="_blank" 
+                           class="btn btn-sm btn-outline-primary mb-1">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        <br>
+                        <img src="{{ url_for('static', filename=c.foto_path.replace('app/static/', '').replace('static/', '')) }}" 
+                             style="max-width:100px; max-height:100px; border-radius:5px;" 
+                             class="img-thumbnail">
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if c.estado == 'pendiente' %}bg-warning text-dark
+                            {% elif c.estado == 'aprobado' %}bg-info
+                            {% elif c.estado == 'confirmado' %}bg-success
+                            {% else %}bg-danger{% endif %}">
+                            {{ c.estado.upper() }}
+                        </span>
+                        {% if c.observaciones %}
+                        <br><small class="text-muted">{{ c.observaciones }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.estado != 'confirmado' %}
+                        <form method="POST" action="{{ url_for('citas.confirmar_pago', id=c.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Confirmar este pago?')">
+                                ✅ Confirmar
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-success"><i class="fas fa-check-circle"></i> Confirmado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        <p class="my-4">No hay comprobantes de pago registrados aún.</p>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if comprobantes %}
+<div class="alert alert-info mt-4">
+    <h5>📊 Resumen</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <strong>Pendientes:</strong> {{ comprobantes|selectattr('estado', 'equalto', 'pendiente')|list|length }}
+        </div>
+        <div class="col-md-3">
+            <strong>Aprobados:</strong> {{ comprobantes|selectattr('estado', 'equalto', 'aprobado')|list|length }}
+        </div>
+        <div class="col-md-3">
+            <strong>Confirmados:</strong> {{ comprobantes|selectattr('estado', 'equalto', 'confirmado')|list|length }}
+        </div>
+        <div class="col-md-3">
+            <strong>Rechazados:</strong> {{ comprobantes|selectattr('estado', 'equalto', 'rechazado')|list|length }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
