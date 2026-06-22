@@ -1,15 +1,18 @@
 /* ========== Estilos generales ========== */
 :root {
     --primary: #0d6efd;
+    --primary-light: #e7f0ff;
     --success: #198754;
     --warning: #ffc107;
     --danger: #dc3545;
     --info: #0dcaf0;
     --secondary: #6c757d;
+    --gray-bg: #f8f9fc;
+    --card-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08);
 }
 
 body {
-    background-color: #f8f9fc;
+    background-color: var(--gray-bg);
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: #212529;
 }
@@ -18,7 +21,7 @@ body {
 .card {
     border-radius: 1.25rem;
     border: none;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
+    box-shadow: var(--card-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -29,9 +32,10 @@ body {
 
 .card-header {
     border-radius: 1.25rem 1.25rem 0 0 !important;
-    background-color: transparent;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background-color: white;
+    border-bottom: 2px solid var(--primary-light);
     padding: 1rem 1.25rem;
+    font-weight: 600;
 }
 
 .card-body {
@@ -41,7 +45,8 @@ body {
 /* ========== Tablas ========== */
 .table-responsive {
     border-radius: 1rem;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.05);
 }
 
@@ -51,17 +56,17 @@ body {
 }
 
 .table thead {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
+    background-color: var(--primary);
+    border-bottom: 2px solid var(--primary);
 }
 
 .table thead th {
     font-weight: 600;
-    text-transform: uppercase;
+    color: white;
     font-size: 0.75rem;
     letter-spacing: 0.5px;
-    color: #6c757d;
     padding: 1rem 0.75rem;
+    border: none;
 }
 
 .table tbody td {
@@ -92,7 +97,6 @@ body {
     padding: 0.5rem 1.2rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    border: none;
 }
 
 .btn:hover {
@@ -160,7 +164,7 @@ body {
 }
 
 .navbar {
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 /* ========== Odontograma ========== */
@@ -195,7 +199,7 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 
-/* ========== Responsive - Móvil ========== */
+/* ========== Responsive - Móvil (<768px) ========== */
 @media (max-width: 768px) {
     .container-fluid {
         padding: 0.5rem !important;
@@ -210,16 +214,36 @@ body {
         border-radius: 1rem;
     }
     
+    .card-header {
+        font-size: 1rem;
+        padding: 0.875rem;
+    }
+    
     .card-body {
         padding: 0.875rem;
     }
     
+    .display-6 {
+        font-size: 1.8rem !important;
+    }
+    
+    /* Tablas con scroll horizontal forzado */
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-responsive table {
+        min-width: 700px; /* Fuerza el ancho mínimo para scroll */
+    }
+    
     .table {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
     
     .table td, .table th {
-        padding: 0.5rem 0.4rem !important;
+        padding: 0.4rem 0.3rem !important;
+        font-size: 0.7rem;
     }
     
     .btn {
@@ -229,12 +253,12 @@ body {
     
     .btn-group .btn,
     .btn-group-sm .btn {
-        font-size: 0.7rem;
-        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
     }
     
     .btn i {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
     
     .badge {
@@ -247,6 +271,10 @@ body {
         padding: 0.3rem;
     }
     
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
     /* Hacer que los grupos de botones se apilen en móvil */
     .btn-group {
         display: flex;
@@ -255,7 +283,24 @@ body {
     }
 }
 
-/* ========== Responsive - Tablet ========== */
+/* ========== Responsive - Extra pequeño (<576px) ========== */
+@media (max-width: 576px) {
+    .table td, .table th {
+        padding: 0.4rem 0.3rem !important;
+        font-size: 0.7rem;
+    }
+    
+    .table .btn-sm {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.4rem;
+    }
+    
+    h1, h2 {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* ========== Responsive - Tablet (769px-1024px) ========== */
 @media (min-width: 769px) and (max-width: 1024px) {
     .container-fluid {
         padding: 1rem !important;
