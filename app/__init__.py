@@ -47,6 +47,27 @@ def create_app():
     # Crear tablas y usuario admin
     with app.app_context():
         db.create_all()
+        
+        # Agregar columnas faltantes automáticamente (para despliegue en producción)
+        from sqlalchemy import inspect, text
+        try:
+            inspector = inspect(db.engine)
+            columns = [col['name'] for col in inspector.get_columns('comprobante_pago')]
+            
+            if 'procedimiento' not in columns:
+                print("⚠️ Agregando columna 'procedimiento'...")
+                db.session.execute(text('ALTER TABLE comprobante_pago ADD COLUMN procedimiento VARCHAR(50)'))
+                db.session.commit()
+                print("✅ Columna 'procedimiento' agregada")
+            
+            if 'tipo_paciente' not in columns:
+                print("⚠️ Agregando columna 'tipo_paciente'...")
+                db.session.execute(text('ALTER TABLE comprobante_pago ADD COLUMN tipo_paciente VARCHAR(20)'))
+                db.session.commit()
+                print("✅ Columna 'tipo_paciente' agregada")
+        except Exception as e:
+            print(f"⚠️ Error al verificar/agregar columnas: {e}")
+        
         from app.models import Usuario, HorarioDoctor, Precio
         from datetime import time
         
