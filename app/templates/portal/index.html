@@ -1,124 +1,122 @@
 {% extends "portal/base_portal.html" %}
 
-{% block page_title %}Bienvenido, {{ paciente.nombre }}{% endblock %}
-{% block page_subtitle %}Gestiona tus citas y consulta tu información{% endblock %}
-
 {% block content %}
-<div class="row g-4">
-    <!-- Card de Bienvenida -->
+<div class="row">
     <div class="col-12">
-        <div class="card bg-primary text-white">
-            <div class="card-body p-4">
-                <h3><i class="fas fa-smile-beam"></i> ¡Hola, {{ paciente.nombre.split()[0] }}!</h3>
-                <p class="mb-0">Es un placer tenerte en nuestro portal. Aquí puedes gestionar tus citas y actualizar tu información.</p>
-            </div>
+        <div class="portal-header">
+            <h1 class="display-6 fw-bold">👋 ¡Hola, {{ paciente.nombre.split()[0]|title }}!</h1>
+            <p class="text-muted">Gestiona tus citas y consulta tu información desde aquí.</p>
         </div>
     </div>
+</div>
 
+<div class="row g-4">
     <!-- Próximas Citas -->
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="fas fa-calendar-check"></i> Próximas Citas</h5>
+        <div class="portal-card">
+            <div class="card-header">
+                <i class="fas fa-clock text-primary"></i> Próximas Citas
             </div>
             <div class="card-body">
                 {% if citas_proximas %}
-                    <div class="list-group list-group-flush">
-                        {% for cita in citas_proximas %}
-                        <div class="list-group-item d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">
-                                    <i class="fas fa-calendar text-primary"></i>
-                                    {{ cita.fecha_hora.strftime('%d/%m/%Y') }}
-                                </h6>
-                                <p class="mb-1">
-                                    <i class="fas fa-clock text-muted"></i>
-                                    {{ cita.fecha_hora.strftime('%H:%M') }}
-                                </p>
-                                <p class="mb-0 text-muted small">
-                                    <i class="fas fa-comment-medical"></i>
-                                    {{ cita.motivo or 'Consulta general' }}
-                                </p>
-                                {% if cita.comprobante %}
-                                    <span class="badge {% if cita.comprobante.estado == 'aprobado' %}bg-success{% elif cita.comprobante.estado == 'rechazado' %}bg-danger{% else %}bg-warning{% endif %} mt-1">
-                                        Pago: {{ cita.comprobante.estado }}
-                                    </span>
-                                {% endif %}
-                            </div>
-                            <div class="text-end">
-                                {% if cita.estado == 'programada' %}
-                                    <span class="badge bg-success">Programada</span>
-                                {% elif cita.estado == 'pendiente' %}
-                                    <span class="badge bg-warning">Pendiente</span>
-                                {% endif %}
-                                <br>
-                                {% if cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado') %}
-                                    <a href="{{ url_for('citas.subir_comprobante', cita_id=cita.id) }}" 
-                                       class="btn btn-sm btn-success mt-2">
-                                        <i class="fas fa-upload"></i> Subir Comprobante
-                                    </a>
-                                {% endif %}
-                                <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
-                                   class="btn btn-sm btn-outline-danger mt-2"
-                                   onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
-                                    Cancelar
-                                </a>
-                            </div>
+                <ul class="list-group list-group-flush">
+                    {% for c in citas_proximas %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ c.fecha_hora.strftime('%d/%m/%Y') }}</strong>
+                            <span class="badge bg-primary ms-2">{{ c.fecha_hora.strftime('%H:%M') }}</span>
+                            <br>
+                            <small class="text-muted">{{ c.motivo or 'Sin motivo' }}</small>
+                            {% if c.comprobante %}
+                            <br>
+                            <span class="badge 
+                                {% if c.comprobante.estado == 'confirmado' %}bg-success
+                                {% elif c.comprobante.estado == 'aprobado' %}bg-info
+                                {% elif c.comprobante.estado == 'rechazado' %}bg-danger
+                                {% else %}bg-warning text-dark{% endif %} mt-1">
+                                Pago: {{ c.comprobante.estado }}
+                            </span>
+                            {% endif %}
                         </div>
-                        {% endfor %}
-                    </div>
+                        <div class="text-end">
+                            <span class="badge
+                                {% if c.estado == 'programada' %}bg-success
+                                {% elif c.estado == 'pendiente' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {{ c.estado|upper }}
+                            </span>
+                            {% if c.estado == 'programada' %}
+                            <br>
+                            <a href="{{ url_for('portal.cancelar_cita', cita_id=c.id) }}" 
+                               class="btn btn-sm btn-outline-danger mt-2"
+                               onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% endif %}
+                            {% if c.estado == 'realizada' and (not c.comprobante or c.comprobante.estado == 'rechazado') %}
+                            <br>
+                            <a href="{{ url_for('citas.subir_comprobante', cita_id=c.id) }}" 
+                               class="btn btn-sm btn-success mt-2">
+                                <i class="fas fa-upload"></i> Pagar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
                 {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No tienes citas programadas</p>
-                        <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Agendar Cita
-                        </a>
-                    </div>
+                <p class="text-muted text-center py-4 mb-0">No tienes citas programadas.</p>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Agendar Cita
+                    </a>
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Historial de Citas -->
+        <!-- Historial Reciente -->
         {% if citas_pasadas %}
-        <div class="card mt-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="fas fa-history"></i> Historial Reciente</h5>
+        <div class="portal-card mt-4">
+            <div class="card-header">
+                <i class="fas fa-history text-success"></i> Historial Reciente
             </div>
             <div class="card-body">
-                <div class="list-group list-group-flush">
-                    {% for cita in citas_pasadas %}
-                    <div class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1">
-                                    <i class="fas fa-calendar text-muted"></i>
-                                    {{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}
-                                </p>
-                                <p class="mb-0 small text-muted">{{ cita.motivo or 'Consulta general' }}</p>
-                                {% if cita.comprobante %}
-                                    <span class="badge {% if cita.comprobante.estado == 'aprobado' %}bg-success{% elif cita.comprobante.estado == 'rechazado' %}bg-danger{% else %}bg-warning{% endif %} mt-1">
-                                        Pago: {{ cita.comprobante.estado }}
-                                    </span>
-                                {% endif %}
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-secondary">Realizada</span>
-                                {% if not cita.comprobante or cita.comprobante.estado == 'rechazado' %}
-                                    <br>
-                                    <a href="{{ url_for('citas.subir_comprobante', cita_id=cita.id) }}" 
-                                       class="btn btn-sm btn-success mt-2">
-                                        <i class="fas fa-upload"></i> Subir Comprobante
-                                    </a>
-                                {% endif %}
-                            </div>
+                <ul class="list-group list-group-flush">
+                    {% for c in citas_pasadas %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ c.fecha_hora.strftime('%d/%m/%Y') }}</strong>
+                            <span class="badge bg-secondary ms-2">{{ c.fecha_hora.strftime('%H:%M') }}</span>
+                            <br>
+                            <small class="text-muted">{{ c.motivo or 'Sin motivo' }}</small>
+                            {% if c.comprobante %}
+                            <br>
+                            <span class="badge 
+                                {% if c.comprobante.estado == 'confirmado' %}bg-success
+                                {% elif c.comprobante.estado == 'aprobado' %}bg-info
+                                {% elif c.comprobante.estado == 'rechazado' %}bg-danger
+                                {% else %}bg-warning text-dark{% endif %} mt-1">
+                                Pago: {{ c.comprobante.estado }}
+                            </span>
+                            {% endif %}
                         </div>
-                    </div>
+                        <div class="text-end">
+                            <span class="badge bg-success">Realizada</span>
+                            {% if not c.comprobante or c.comprobante.estado == 'rechazado' %}
+                            <br>
+                            <a href="{{ url_for('citas.subir_comprobante', cita_id=c.id) }}" 
+                               class="btn btn-sm btn-success mt-2">
+                                <i class="fas fa-upload"></i> Pagar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
                 <div class="text-center mt-3">
                     <a href="{{ url_for('portal.mis_citas') }}" class="btn btn-sm btn-outline-primary">
-                        Ver todas las citas
+                        <i class="fas fa-calendar-alt"></i> Ver todas las citas
                     </a>
                 </div>
             </div>
@@ -128,31 +126,31 @@
 
     <!-- Acciones Rápidas -->
     <div class="col-md-4">
-        <div class="card mb-3">
+        <div class="portal-card mb-3">
             <div class="card-body text-center">
                 <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
-                <h5>Agendar Cita</h5>
-                <p class="text-muted small">Programa tu próxima visita</p>
+                <h5 class="card-title">Agendar Cita</h5>
+                <p class="text-muted small mb-3">Programa tu próxima visita</p>
                 <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary w-100">
-                    Agendar Ahora
+                    <i class="fas fa-plus-circle"></i> Agendar Ahora
                 </a>
             </div>
         </div>
 
-        <div class="card mb-3">
+        <div class="portal-card mb-3">
             <div class="card-body text-center">
                 <i class="fas fa-user-edit fa-3x text-success mb-3"></i>
-                <h5>Mi Perfil</h5>
-                <p class="text-muted small">Actualiza tus datos</p>
+                <h5 class="card-title">Mi Perfil</h5>
+                <p class="text-muted small mb-3">Actualiza tus datos</p>
                 <a href="{{ url_for('portal.mi_perfil') }}" class="btn btn-success w-100">
-                    Editar Perfil
+                    <i class="fas fa-edit"></i> Editar Perfil
                 </a>
             </div>
         </div>
 
-        <div class="card bg-light">
+        <div class="portal-card bg-soft-primary">
             <div class="card-body">
-                <h6><i class="fas fa-info-circle"></i> Información de Contacto</h6>
+                <h6 class="card-title"><i class="fas fa-info-circle"></i> Información de Contacto</h6>
                 <hr>
                 <p class="small mb-2">
                     <i class="fas fa-phone text-primary"></i>

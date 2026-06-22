@@ -2,100 +2,167 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}Portal del Paciente - OdontoSeguro{% endblock %}</title>
+    
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     <style>
-        .sidebar {
+        /* Estilos específicos para el portal del paciente */
+        .portal-container {
+            background-color: #f8f9fc;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            margin: 5px 0;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        .card {
+        
+        .portal-card {
+            border-radius: 1.25rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08);
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: white;
+        }
+        
+        .portal-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.12);
+        }
+        
+        .portal-card .card-header {
+            background-color: white;
+            border-bottom: 2px solid #e7f0ff;
+            font-weight: 600;
+            border-radius: 1.25rem 1.25rem 0 0;
+            padding: 1rem 1.25rem;
+        }
+        
+        .portal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .portal-header h1 {
+                font-size: 1.5rem !important;
+            }
+            .portal-header .btn {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.8rem;
+            }
+            .portal-card .card-header {
+                font-size: 0.9rem;
+                padding: 0.8rem 1rem;
+            }
+            .portal-card .card-body {
+                padding: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .list-group-item {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.85rem;
+            }
+            .btn {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+            }
+            .form-control-lg {
+                font-size: 1rem;
+                padding: 0.5rem 0.75rem;
+            }
         }
     </style>
 </head>
-<body class="bg-light">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar text-white p-0">
-                <div class="p-4">
-                    <h4 class="mb-4">
-                        <i class="fas fa-tooth"></i> OdontoSeguro
-                    </h4>
-                    <p class="small mb-4">Portal del Paciente</p>
-                    
-                    <nav class="nav flex-column">
-                        <a class="nav-link {% if request.endpoint == 'portal.index' %}active{% endif %}" 
-                           href="{{ url_for('portal.index') }}">
+<body>
+    <!-- Barra de navegación del portal -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('portal.index') }}">
+                <i class="fas fa-tooth" style="color: #0d6efd;"></i> OdontoSeguro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#portalNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="portalNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'portal.index' %}active{% endif %}"
+                            href="{{ url_for('portal.index') }}">
                             <i class="fas fa-home"></i> Inicio
                         </a>
-                        <a class="nav-link {% if request.endpoint == 'portal.mis_citas' %}active{% endif %}" 
-                           href="{{ url_for('portal.mis_citas') }}">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'portal.mis_citas' %}active{% endif %}"
+                            href="{{ url_for('portal.mis_citas') }}">
                             <i class="fas fa-calendar-alt"></i> Mis Citas
                         </a>
-                        <a class="nav-link {% if request.endpoint == 'portal.nueva_cita' %}active{% endif %}" 
-                           href="{{ url_for('portal.nueva_cita') }}">
-                            <i class="fas fa-calendar-plus"></i> Agendar Cita
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'portal.nueva_cita' %}active{% endif %}"
+                            href="{{ url_for('portal.nueva_cita') }}">
+                            <i class="fas fa-plus-circle"></i> Agendar Cita
                         </a>
-                        <a class="nav-link {% if request.endpoint == 'portal.mi_perfil' %}active{% endif %}" 
-                           href="{{ url_for('portal.mi_perfil') }}">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'portal.mi_perfil' %}active{% endif %}"
+                            href="{{ url_for('portal.mi_perfil') }}">
                             <i class="fas fa-user"></i> Mi Perfil
                         </a>
-                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ current_user.username }}
                         </a>
-                    </nav>
-                </div>
-                
-                <div class="p-4 mt-auto">
-                    <div class="p-3 bg-white bg-opacity-10 rounded">
-                        <p class="mb-1 small"><i class="fas fa-user-circle"></i> {{ current_user.username }}</p>
-                        <p class="mb-0 small text-white-50">{{ current_user.email }}</p>
-                    </div>
-                </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('portal.mi_perfil') }}">
+                                <i class="fas fa-user-cog"></i> Mi Perfil
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
+        </div>
+    </nav>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 p-4">
-                <div class="mb-4">
-                    <h2>{% block page_title %}Portal del Paciente{% endblock %}</h2>
-                    <p class="text-muted">{% block page_subtitle %}Bienvenido a tu portal personal{% endblock %}</p>
+    <div class="container-fluid portal-container py-4">
+        <div class="container">
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                {% endfor %}
+            {% endwith %}
 
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-                {% block content %}{% endblock %}
-            </div>
+            {% block content %}{% endblock %}
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

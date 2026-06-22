@@ -1,103 +1,112 @@
 {% extends "portal/base_portal.html" %}
 
-{% block page_title %}Mis Citas{% endblock %}
-{% block page_subtitle %}Historial completo de tus citas médicas{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Todas mis Citas</h5>
-                <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nueva Cita
-                </a>
+        <div class="portal-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold">📋 Mis Citas</h1>
+                <p class="text-muted">Historial completo de tus citas médicas.</p>
             </div>
+            <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Nueva Cita
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="portal-card">
             <div class="card-body">
                 {% if citas %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-calendar"></i> Fecha</th>
-                                    <th><i class="fas fa-clock"></i> Hora</th>
-                                    <th><i class="fas fa-comment-medical"></i> Motivo</th>
-                                    <th><i class="fas fa-info-circle"></i> Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for cita in citas %}
-                                <tr>
-                                    <td>{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</td>
-                                    <td>{{ cita.fecha_hora.strftime('%H:%M') }}</td>
-                                    <td>{{ cita.motivo or 'Consulta general' }}</td>
-                                    <td>
-                                        {% if cita.estado == 'pendiente' %}
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-clock"></i> Pendiente de Aprobación
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in citas %}
+                            <tr>
+                                <td>{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ cita.fecha_hora.strftime('%H:%M') }}</td>
+                                <td>{{ cita.motivo or 'Consulta general' }}</td>
+                                <td>
+                                    {% if cita.estado == 'pendiente' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock"></i> PENDIENTE
+                                        </span>
+                                    {% elif cita.estado == 'programada' %}
+                                        {% if cita.fecha_hora > now() %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> CONFIRMADA
                                             </span>
-                                        {% elif cita.estado == 'programada' %}
-                                            {% if cita.fecha_hora > now() %}
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check"></i> Confirmada
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">Realizada</span>
-                                            {% endif %}
-                                        {% elif cita.estado == 'rechazada' %}
-                                            <span class="badge bg-danger">
-                                                <i class="fas fa-times"></i> Rechazada
-                                            </span>
-                                        {% elif cita.estado == 'cancelada' %}
-                                            <span class="badge bg-danger">Cancelada</span>
-                                        {% elif cita.estado == 'realizada' %}
-                                            <span class="badge bg-primary">Completada</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">{{ cita.estado }}</span>
+                                            <span class="badge bg-primary">REALIZADA</span>
                                         {% endif %}
-                                        
-                                        {% if cita.comprobante %}
-                                            <br>
-                                            <span class="badge {% if cita.comprobante.estado == 'aprobado' %}bg-success{% elif cita.comprobante.estado == 'rechazado' %}bg-danger{% else %}bg-warning{% endif %} mt-1">
-                                                Pago: {{ cita.comprobante.estado }}
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now() %}
-                                            <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
-                                               class="btn btn-sm btn-outline-danger mb-1"
-                                               onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
-                                                <i class="fas fa-times"></i> Cancelar
-                                            </a>
-                                        {% endif %}
-                                        
-                                        {% if cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado') %}
-                                            <a href="{{ url_for('citas.subir_comprobante', cita_id=cita.id) }}" 
-                                               class="btn btn-sm btn-success mb-1">
-                                                <i class="fas fa-upload"></i> Subir Comprobante
-                                            </a>
-                                        {% endif %}
-                                        
-                                        {% if not (cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now()) and not (cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado')) %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    {% elif cita.estado == 'rechazada' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times"></i> RECHAZADA
+                                        </span>
+                                    {% elif cita.estado == 'cancelada' %}
+                                        <span class="badge bg-danger">CANCELADA</span>
+                                    {% elif cita.estado == 'realizada' %}
+                                        <span class="badge bg-primary">COMPLETADA</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ cita.estado|upper }}</span>
+                                    {% endif %}
+                                    
+                                    {% if cita.comprobante %}
+                                        <br>
+                                        <span class="badge 
+                                            {% if cita.comprobante.estado == 'confirmado' %}bg-success
+                                            {% elif cita.comprobante.estado == 'aprobado' %}bg-info
+                                            {% elif cita.comprobante.estado == 'rechazado' %}bg-danger
+                                            {% else %}bg-warning text-dark{% endif %} mt-1">
+                                            Pago: {{ cita.comprobante.estado|upper }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now() %}
+                                        <a href="{{ url_for('portal.cancelar_cita', cita_id=cita.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado') %}
+                                        <a href="{{ url_for('citas.subir_comprobante', cita_id=cita.id) }}" 
+                                           class="btn btn-sm btn-success">
+                                            <i class="fas fa-upload"></i> Pagar
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if not (cita.estado in ['programada', 'pendiente'] and cita.fecha_hora > now()) and not (cita.estado == 'realizada' and (not cita.comprobante or cita.comprobante.estado == 'rechazado')) %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                        <h5 class="text-muted">No tienes citas registradas</h5>
-                        <p class="text-muted">Agenda tu primera cita para comenzar</p>
-                        <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-calendar-plus"></i> Agendar Primera Cita
-                        </a>
-                    </div>
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x mb-3"></i>
+                    <h5>No tienes citas registradas todavía</h5>
+                    <p class="mb-4">Agenda tu primera cita para comenzar</p>
+                    <a href="{{ url_for('portal.nueva_cita') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agendar mi primera cita
+                    </a>
+                </div>
                 {% endif %}
             </div>
         </div>
