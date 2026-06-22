@@ -61,11 +61,32 @@ def nueva_cita():
         flash('No se encontró información del paciente', 'warning')
         return redirect(url_for('public.index'))
     
+    # Importar HorarioDoctor
+    from app.models import HorarioDoctor
+    
+    # Obtener horarios de la base de datos
+    horarios = HorarioDoctor.query.filter_by(activo=True).order_by(
+        HorarioDoctor.dia_semana, 
+        HorarioDoctor.hora_inicio
+    ).all()
+    
+    # Agrupar por doctor
+    doctores = {}
+    for h in horarios:
+        if h.doctor not in doctores:
+            doctores[h.doctor] = []
+        doctores[h.doctor].append({
+            'dia': h.dia_semana,
+            'inicio': h.hora_inicio.strftime('%H:%M'),
+            'fin': h.hora_fin.strftime('%H:%M')
+        })
+    
     if request.method == 'POST':
         try:
             fecha_str = request.form.get('fecha')
             hora_str = request.form.get('hora')
             motivo = request.form.get('motivo')
+            doctor_preferido = request.form.get('doctor', '')  # Opcional
             
             # Combinar fecha y hora
             fecha_hora_str = f"{fecha_str} {hora_str}"
@@ -95,11 +116,16 @@ def nueva_cita():
             if not admin:
                 admin = Usuario.query.first()
             
+            # Agregar doctor preferido al motivo si se seleccionó
+            motivo_completo = motivo
+            if doctor_preferido:
+                motivo_completo = f"[Doctor preferido: {doctor_preferido}] {motivo}"
+            
             nueva = Cita(
                 paciente_id=paciente.id,
                 usuario_id=admin.id,
                 fecha_hora=fecha_hora,
-                motivo=motivo,
+                motivo=motivo_completo,
                 estado='pendiente'  # Requiere aprobación del admin
             )
             
@@ -108,7 +134,6 @@ def nueva_cita():
             
             # Log de notificación (sin envío de email)
             current_app.logger.info(f"Notificación: Nueva solicitud de cita de {paciente.nombre} para {fecha_hora}")
-                # No fallar la solicitud si el email falla
             
             flash('✅ Solicitud de cita enviada. El consultorio confirmará la disponibilidad en 24 horas.', 'success')
             return redirect(url_for('portal.mis_citas'))
@@ -119,7 +144,6 @@ def nueva_cita():
             return redirect(url_for('portal.nueva_cita'))
     
     # Obtener fechas con disponibilidad para mostrar en el calendario
-    from datetime import date, timedelta
     fechas_ocupadas = []
     fecha_actual = date.today()
     
@@ -141,7 +165,8 @@ def nueva_cita():
     return render_template('portal/nueva_cita.html', 
                          paciente=paciente,
                          fecha_hoy=date.today().strftime('%Y-%m-%d'),
-                         fechas_ocupadas=fechas_ocupadas)
+                         fechas_ocupadas=fechas_ocupadas,
+                         doctores=doctores)
 
 @portal_bp.route('/mi-perfil', methods=['GET', 'POST'])
 def mi_perfil():
